@@ -785,31 +785,34 @@ function copyWishText() {
 
 async function downloadWishImage() {
   const cardElement = document.getElementById('exportWishCard');
-  const headerTitle = document.getElementById('heroGreetingTitle');
   if (!cardElement) return;
 
   showToast('Rendering your card image... 🎨', '⏳');
 
   try {
     const canvas = await html2canvas(cardElement, {
-      scale: 2,
+      scale: 2.5,
       useCORS: true,
       backgroundColor: '#0F172A',
       logging: false,
       onclone: (clonedDoc) => {
         const clonedCard = clonedDoc.getElementById('exportWishCard');
+        const clonedHeader = clonedDoc.getElementById('openingGreeting');
+
         if (clonedCard) {
           clonedCard.style.transform = 'none';
           clonedCard.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.6)';
-          
-          if (headerTitle) {
-            const titleClone = clonedDoc.createElement('h1');
-            titleClone.className = 'hero-title';
-            titleClone.style.fontSize = '1.6rem';
-            titleClone.style.marginBottom = '1.2rem';
-            titleClone.style.textAlign = 'center';
-            titleClone.textContent = '🇮🇳 Happy 80th Independence Day! 🇮🇳';
-            clonedCard.insertBefore(titleClone, clonedCard.firstChild);
+          clonedCard.style.paddingTop = '2rem';
+
+          if (clonedHeader) {
+            const headerCopy = clonedHeader.cloneNode(true);
+            headerCopy.style.display = 'flex';
+            headerCopy.style.marginBottom = '1.8rem';
+            headerCopy.style.width = '100%';
+            headerCopy.style.opacity = '1';
+            headerCopy.style.transform = 'none';
+
+            clonedCard.insertBefore(headerCopy, clonedCard.firstChild);
           }
         }
       }
