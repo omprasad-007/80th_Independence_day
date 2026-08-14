@@ -521,6 +521,10 @@ function generateWish(name) {
 
   // Run Cinematic Opening Animation Sequence
   runCinematicIntroSequence(cleanName);
+
+  // Update URL search parameter so sharing link contains the recipient's name
+  const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
+  window.history.replaceState({}, '', newUrl);
 }
 
 function runCinematicIntroSequence(cleanName) {
@@ -700,7 +704,7 @@ With Love & Best Wishes ❤️
 — Omprasad Bhaskar Padwalkar 🇮🇳
 
 Generate your personalized 80th Independence Day wish here:
-${window.location.origin}${window.location.pathname}`;
+${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`;
 }
 
 function shareOnWhatsApp() {
@@ -715,7 +719,7 @@ async function shareNativeWish() {
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
     text: wishText,
-    url: window.location.href
+    url: `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`
   };
 
   if (navigator.share) {
@@ -797,6 +801,9 @@ function resetForm() {
     nameInput.value = '';
     nameInput.focus();
   }
+
+  // Reset URL back to clean path
+  window.history.replaceState({}, '', window.location.pathname);
 }
 
 // ==========================================
@@ -910,6 +917,20 @@ function showToast(message, icon = '✨') {
 }
 
 // ==========================================
+// Check URL Parameters on Load
+// ==========================================
+function checkUrlParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const nameParam = urlParams.get('name');
+
+  if (nameParam && nameParam.trim() !== '') {
+    const nameInput = document.getElementById('userNameInput');
+    if (nameInput) nameInput.value = nameParam.trim();
+    generateWish(nameParam.trim());
+  }
+}
+
+// ==========================================
 // Initialize Event Listeners
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -972,6 +993,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const resetWishBtn = document.getElementById('resetWishBtn');
   if (resetWishBtn) resetWishBtn.addEventListener('click', resetForm);
+
+  // Auto-detect name URL parameter for direct recipient links
+  checkUrlParams();
 
   // Auto-start music on page load & unlock on first interaction
   startPatrioticAudio();
