@@ -1187,6 +1187,18 @@ body {
   border-color: #22C55E;
 }
 
+.btn-send-wish {
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+  border-color: #F472B6;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
+}
+
+.btn-send-wish:hover {
+  background: linear-gradient(135deg, #DB2777, #7C3AED);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+}
+
 .btn-reset {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.15);

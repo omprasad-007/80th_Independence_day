@@ -8,6 +8,7 @@ const state = {
   currentName: '',
   senderName: '',
   isPlayingAudio: true,
+  wasAudioPlayingBeforeHidden: false,
   audioContext: null,
   activeOscillators: [],
   currentQuoteIndex: 0,
@@ -1004,6 +1005,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadImageBtn = document.getElementById('downloadImageBtn');
   if (downloadImageBtn) downloadImageBtn.addEventListener('click', downloadWishImage);
 
+  const sendWishBottomBtn = document.getElementById('sendWishBottomBtn');
+  if (sendWishBottomBtn) {
+    sendWishBottomBtn.addEventListener('click', () => {
+      const wishSection = document.getElementById('wishSection');
+      const nameSection = document.getElementById('nameSection');
+      const tabSendWish = document.getElementById('tabSendWish');
+      const tabQuickWish = document.getElementById('tabQuickWish');
+      const senderInputGroup = document.getElementById('senderInputGroup');
+      const userSenderInput = document.getElementById('userSenderInput');
+      const formTitle = document.getElementById('formTitle');
+
+      if (wishSection) wishSection.classList.add('hidden');
+      if (nameSection) nameSection.classList.remove('hidden');
+
+      if (tabSendWish && tabQuickWish) {
+        tabSendWish.classList.add('active');
+        tabQuickWish.classList.remove('active');
+      }
+      if (senderInputGroup) senderInputGroup.classList.remove('hidden');
+      if (formTitle) formTitle.textContent = 'Create Custom Sender & Receiver Wish 💌';
+      if (userSenderInput) userSenderInput.focus();
+    });
+  }
+
   const resetWishBtn = document.getElementById('resetWishBtn');
   if (resetWishBtn) resetWishBtn.addEventListener('click', resetForm);
 
@@ -1023,4 +1048,32 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', unlockAudio);
   document.addEventListener('touchstart', unlockAudio);
   document.addEventListener('keydown', unlockAudio);
+
+  // Auto-pause audio when user leaves tab / minimizes app, resume when returning
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (bgAudioElement && !bgAudioElement.paused) {
+        bgAudioElement.pause();
+        state.wasAudioPlayingBeforeHidden = true;
+      }
+      if (state.audioContext && state.audioContext.state === 'running') {
+        state.audioContext.suspend();
+        state.wasAudioPlayingBeforeHidden = true;
+      }
+    } else {
+      if (state.isPlayingAudio && state.wasAudioPlayingBeforeHidden) {
+        if (bgAudioElement) {
+          bgAudioElement.play().catch(() => {});
+        } else if (state.audioContext && state.audioContext.state === 'suspended') {
+          state.audioContext.resume().catch(() => {});
+        }
+        state.wasAudioPlayingBeforeHidden = false;
+      }
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    if (bgAudioElement) bgAudioElement.pause();
+    if (state.audioContext && state.audioContext.state === 'running') state.audioContext.suspend();
+  });
 });
