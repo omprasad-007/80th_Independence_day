@@ -508,7 +508,7 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic
+// Form & Wish Generation Logic (Cinematic Opening Sequence)
 // ==========================================
 function generateWish(name) {
   if (!name || name.trim() === '') {
@@ -519,37 +519,134 @@ function generateWish(name) {
   const cleanName = name.trim();
   state.currentName = cleanName;
 
-  // Update Display Elements
-  const displayRecipient = document.getElementById('displayRecipientName');
-  const nameText = document.getElementById('nameText');
-  
-  if (displayRecipient && nameText) {
-    nameText.textContent = cleanName;
-  }
-
-  // Hide Form, Show Wish Card
-  const formSection = document.getElementById('formSection');
-  const wishSection = document.getElementById('wishSection');
-
-  if (formSection && wishSection) {
-    formSection.classList.add('hidden');
-    wishSection.classList.remove('hidden');
-
-    // Scroll smoothly to wish card
-    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  // 🎇 Trigger 3-5s Firecrackers Explosion Celebration Sequence!
-  if (typeof window.triggerFirecrackers === 'function') {
-    window.triggerFirecrackers();
-  }
-
-  // 🇮🇳 Trigger Tricolor Confetti Burst!
-  triggerTricolorConfetti();
+  // Run Cinematic Opening Animation Sequence
+  runCinematicIntroSequence(cleanName);
 
   // Update URL search param for direct sharing capability
   const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
   window.history.replaceState({ path: newUrl }, '', newUrl);
+}
+
+function runCinematicIntroSequence(cleanName) {
+  const formSection = document.getElementById('formSection');
+  const wishSection = document.getElementById('wishSection');
+  const exportWishCard = document.getElementById('exportWishCard');
+  const boomOverlay = document.getElementById('boomFlashOverlay');
+  const nameText = document.getElementById('nameText');
+
+  if (nameText) nameText.textContent = cleanName;
+
+  // Reset all cinematic step elements
+  const steps = [
+    'stepHappy', 'stepTitle', 'stepDate', 'stepName',
+    'stepWish1', 'stepWish2', 'stepWish3', 'stepSig'
+  ];
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('hidden');
+      el.classList.remove('anim-scale-up', 'anim-fade-up');
+    }
+  });
+
+  if (exportWishCard) {
+    exportWishCard.classList.remove('final-celebration-aura');
+  }
+
+  // 0.0s → 🎆 BOOM INTRO
+  if (boomOverlay) {
+    boomOverlay.classList.remove('hidden');
+    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
+  }
+
+  triggerTricolorConfetti();
+  playFireworkBurstSound();
+
+  if (formSection && wishSection) {
+    formSection.classList.add('hidden');
+    wishSection.classList.remove('hidden');
+    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // 0.7s → 🇮🇳 HAPPY 80th
+  setTimeout(() => {
+    const stepHappy = document.getElementById('stepHappy');
+    if (stepHappy) {
+      stepHappy.classList.remove('hidden');
+      stepHappy.classList.add('anim-scale-up');
+    }
+  }, 700);
+
+  // 1.3s → INDEPENDENCE DAY 🇮🇳
+  setTimeout(() => {
+    const stepTitle = document.getElementById('stepTitle');
+    if (stepTitle) {
+      stepTitle.classList.remove('hidden');
+      stepTitle.classList.add('anim-scale-up');
+    }
+  }, 1300);
+
+  // 2.2s → 15 AUGUST 2026
+  setTimeout(() => {
+    const stepDate = document.getElementById('stepDate');
+    if (stepDate) {
+      stepDate.classList.remove('hidden');
+      stepDate.classList.add('anim-scale-up');
+    }
+  }, 2200);
+
+  // 3.0s → ❤️ Dear [NAME] ❤️
+  setTimeout(() => {
+    const stepName = document.getElementById('stepName');
+    if (stepName) {
+      stepName.classList.remove('hidden');
+      stepName.classList.add('anim-scale-up');
+    }
+  }, 3000);
+
+  // 4.0s → 💌 Personalized Wish Line by Line
+  setTimeout(() => {
+    const stepWish1 = document.getElementById('stepWish1');
+    if (stepWish1) {
+      stepWish1.classList.remove('hidden');
+      stepWish1.classList.add('anim-fade-up');
+    }
+  }, 4000);
+
+  setTimeout(() => {
+    const stepWish2 = document.getElementById('stepWish2');
+    if (stepWish2) {
+      stepWish2.classList.remove('hidden');
+      stepWish2.classList.add('anim-fade-up');
+    }
+  }, 4400);
+
+  setTimeout(() => {
+    const stepWish3 = document.getElementById('stepWish3');
+    if (stepWish3) {
+      stepWish3.classList.remove('hidden');
+      stepWish3.classList.add('anim-fade-up');
+    }
+  }, 4800);
+
+  setTimeout(() => {
+    const stepSig = document.getElementById('stepSig');
+    if (stepSig) {
+      stepSig.classList.remove('hidden');
+      stepSig.classList.add('anim-fade-up');
+    }
+  }, 5200);
+
+  // 6.0s → 🎆 FINAL CELEBRATION
+  setTimeout(() => {
+    if (typeof window.triggerFirecrackers === 'function') {
+      window.triggerFirecrackers();
+    }
+    triggerTricolorConfetti();
+    if (exportWishCard) {
+      exportWishCard.classList.add('final-celebration-aura');
+    }
+  }, 6000);
 }
 
 function triggerTricolorConfetti() {
@@ -665,6 +762,13 @@ async function downloadWishImage() {
         if (clonedCard) {
           clonedCard.style.transform = 'none';
           clonedCard.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.6)';
+          
+          // Reveal all cinematic steps in exported image
+          clonedDoc.querySelectorAll('.cinematic-step').forEach(el => {
+            el.classList.remove('hidden');
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+          });
         }
       }
     });

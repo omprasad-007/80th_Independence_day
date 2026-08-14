@@ -494,6 +494,126 @@ body {
   border-color: var(--saffron-bright);
 }
 
+/* Shockwave BOOM Flash Overlay */
+.boom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 153, 51, 0.45), rgba(255, 255, 255, 0.25) 40%, rgba(4, 106, 56, 0.35) 70%, transparent 100%);
+  animation: boomFlash 0.75s var(--ease-smooth) forwards;
+}
+
+@keyframes boomFlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* Cinematic Step Sequence Elements */
+.cinematic-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.happy-step {
+  font-family: var(--font-title);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--saffron-bright);
+  text-shadow: 0 0 15px rgba(255, 153, 51, 0.6);
+}
+
+.title-step {
+  font-family: var(--font-title);
+  font-size: clamp(1.8rem, 4.8vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+}
+
+.date-step {
+  display: inline-block;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: var(--accent-gold-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+
+/* Cinematic Reveal Animations */
+.anim-scale-up {
+  animation: zoomInCinematic 0.65s var(--ease-spring) forwards;
+}
+
+.anim-fade-up {
+  animation: fadeUpCinematic 0.6s var(--ease-smooth) forwards;
+}
+
+@keyframes zoomInCinematic {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+    filter: blur(8px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeUpCinematic {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card Aura Glow after celebration */
+.wish-card.final-celebration-aura {
+  animation: cardGlowAura 3s ease-in-out infinite alternate;
+}
+
+@keyframes cardGlowAura {
+  0% {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 153, 51, 0.25);
+  }
+  100% {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 55px rgba(255, 153, 51, 0.5), 0 0 40px rgba(4, 106, 56, 0.35);
+  }
+}
+
 /* Personalized Wish Display Card Section */
 .wish-display-section {
   max-width: 680px;

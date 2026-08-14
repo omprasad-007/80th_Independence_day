@@ -140,6 +140,9 @@
       </div>
     </section>
 
+    <!-- Shockwave BOOM Flash Overlay -->
+    <div id="boomFlashOverlay" class="boom-overlay hidden" aria-hidden="true"></div>
+
     <!-- Personalized Wish Display Card Section -->
     <section class="wish-display-section hidden" id="wishSection">
       <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
@@ -154,27 +157,33 @@
         <!-- Watermark Ashoka Chakra -->
         <div class="card-watermark-chakra"></div>
 
+        <!-- Cinematic Title Sequence Reveal -->
+        <div class="cinematic-header">
+          <div class="cinematic-step happy-step hidden" id="stepHappy">HAPPY 80th</div>
+          <div class="cinematic-step title-step hidden" id="stepTitle">INDEPENDENCE DAY 🇮🇳</div>
+          <div class="cinematic-step date-step hidden" id="stepDate">15 AUGUST 2026</div>
+        </div>
+
         <div class="wish-header">
-          <div class="greeting-badge">🇮🇳 15 August 2026 — 80th Independence Day</div>
-          <h2 class="recipient-name" id="displayRecipientName">
+          <h2 class="recipient-name cinematic-step hidden" id="stepName">
             Dear <span class="name-highlight" id="nameText">Friend</span>, ❤️
           </h2>
         </div>
 
         <div class="wish-body">
-          <p class="wish-paragraph lead-wish">
+          <p class="wish-paragraph lead-wish cinematic-step hidden" id="stepWish1">
             Wishing you a very Happy 80th Independence Day! 🇮🇳
           </p>
-          <p class="wish-paragraph">
+          <p class="wish-paragraph cinematic-step hidden" id="stepWish2">
             May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
           </p>
-          <p class="wish-paragraph highlight-wish">
+          <p class="wish-paragraph highlight-wish cinematic-step hidden" id="stepWish3">
             Jai Hind! 🇮🇳❤️
           </p>
         </div>
 
         <!-- Developer Signature Section -->
-        <div class="developer-signature-box">
+        <div class="developer-signature-box cinematic-step hidden" id="stepSig">
           <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
           <p class="sig-note">With Love & Best Wishes ❤️</p>
           
