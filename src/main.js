@@ -521,10 +521,6 @@ function generateWish(name) {
 
   // Run Cinematic Opening Animation Sequence
   runCinematicIntroSequence(cleanName);
-
-  // Update URL search param for direct sharing capability
-  const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
-  window.history.replaceState({ path: newUrl }, '', newUrl);
 }
 
 function runCinematicIntroSequence(cleanName) {
@@ -692,7 +688,8 @@ function triggerTricolorConfetti() {
 // Sharing & Download Actions
 // ==========================================
 function getWishText() {
-  return `Dear ${state.currentName || 'Friend'}, ❤️
+  const recipientName = state.currentName || 'Friend';
+  return `Happy 80th Independence Day, ${recipientName}! 🇮🇳❤️
 
 Wishing you a very Happy 80th Independence Day! 🇮🇳
 
@@ -703,8 +700,8 @@ Jai Hind! 🇮🇳❤️
 With Love & Best Wishes ❤️
 — Omprasad Bhaskar Padwalkar 🇮🇳
 
-Generate your personalized 80th Independence Day wish here:
-${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`;
+Celebrate & generate your personalized 80th Independence Day wish here:
+${window.location.origin}${window.location.pathname}`;
 }
 
 function shareOnWhatsApp() {
@@ -716,10 +713,11 @@ function shareOnWhatsApp() {
 
 async function shareNativeWish() {
   const wishText = getWishText();
+  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
     text: wishText,
-    url: window.location.href
+    url: cleanUrl
   };
 
   if (navigator.share) {
@@ -801,9 +799,6 @@ function resetForm() {
     nameInput.value = '';
     nameInput.focus();
   }
-
-  // Clear query string
-  window.history.replaceState({}, '', window.location.pathname);
 }
 
 // ==========================================
@@ -917,20 +912,6 @@ function showToast(message, icon = '✨') {
 }
 
 // ==========================================
-// Check URL Parameters on Load
-// ==========================================
-function checkUrlParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const nameParam = urlParams.get('name');
-
-  if (nameParam && nameParam.trim() !== '') {
-    const nameInput = document.getElementById('userNameInput');
-    if (nameInput) nameInput.value = nameParam;
-    generateWish(nameParam);
-  }
-}
-
-// ==========================================
 // Initialize Event Listeners
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -993,9 +974,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const resetWishBtn = document.getElementById('resetWishBtn');
   if (resetWishBtn) resetWishBtn.addEventListener('click', resetForm);
-
-  // Check URL params for direct shared links
-  checkUrlParams();
 
   // Auto-start music on page load & unlock on first interaction
   startPatrioticAudio();
