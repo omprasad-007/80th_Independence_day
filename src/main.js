@@ -526,11 +526,10 @@ function generateWish(name) {
 
   if (nameText) nameText.textContent = cleanName;
 
-  // In-place morphing: hide input section, reveal wish card directly below permanent header
+  // In-place morphing: hide input section, reveal wish card directly below permanent header (NO SCROLLING)
   if (nameSection) nameSection.classList.add('hidden');
   if (wishSection) {
     wishSection.classList.remove('hidden');
-    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   // Trigger name animation in place
@@ -596,11 +595,13 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const name = state.currentName || 'Friend';
-  return `🇮🇳 Happy 80th Independence Day! 🇮🇳
+  return `Dear ${name}, ❤️
 
-Dear ${name}, ❤️
+Wishing you a very Happy 80th Independence Day! 🇮🇳
 
-May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
+May freedom, courage, happiness, and hope always fill your life. May your dreams soar high, and may you always make our nation proud.
+
+Let us celebrate the spirit of freedom and work together for a brighter and stronger India.
 
 Jai Hind! 🇮🇳❤️
 
