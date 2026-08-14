@@ -334,6 +334,8 @@ function toggleAudio() {
 
 function startPatrioticAudio() {
   const candidateAudioPaths = [
+    '/music/vandemataram ringtone.mpeg',
+    '/music/vandemataram_ringtone.mpeg',
     '/music/vandemataram ringtone.mp3',
     '/music/vandemataram_ringtone.mp3',
     '/music/vandemataram.mp3',
