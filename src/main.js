@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 // ==========================================
 const state = {
   currentName: '',
+  senderName: '',
   isPlayingAudio: true,
   audioContext: null,
   activeOscillators: [],
@@ -508,23 +509,33 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic (In-Place Slot Morphing)
+// Form & Wish Generation Logic (In-Place Slot Morphing with Sender & Receiver Support)
 // ==========================================
 function generateWish(name) {
-  if (!name || name.trim() === '') {
-    showToast('Please enter your name to generate your wish! 🇮🇳', '⚠️');
+  const receiverInput = document.getElementById('userNameInput');
+  const senderInput = document.getElementById('userSenderInput');
+
+  const receiverName = (name || (receiverInput ? receiverInput.value : '')).trim();
+  if (!receiverName) {
+    showToast('Please enter receiver\'s name to generate wish! 🇮🇳', '⚠️');
     return;
   }
 
-  const cleanName = name.trim();
-  state.currentName = cleanName;
+  const senderName = senderInput ? senderInput.value.trim() : (state.senderName || '');
+
+  state.currentName = receiverName;
+  state.senderName = senderName;
 
   const nameSection = document.getElementById('nameSection');
   const wishSection = document.getElementById('wishSection');
   const nameText = document.getElementById('nameText');
+  const senderNameText = document.getElementById('senderNameText');
   const displayRecipient = document.getElementById('displayRecipientName');
 
-  if (nameText) nameText.textContent = cleanName;
+  if (nameText) nameText.textContent = receiverName;
+  if (senderNameText) {
+    senderNameText.textContent = senderName ? `${senderName} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
+  }
 
   // In-place morphing: hide input section, reveal wish card directly below permanent header (NO SCROLLING)
   if (nameSection) nameSection.classList.add('hidden');
@@ -546,8 +557,11 @@ function generateWish(name) {
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  // Update URL search parameter for direct sharing capability
-  const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
+  // Update URL search parameters for direct sharing capability
+  let newUrl = `${window.location.pathname}?name=${encodeURIComponent(receiverName)}`;
+  if (senderName) {
+    newUrl += `&sender=${encodeURIComponent(senderName)}`;
+  }
   window.history.replaceState({}, '', newUrl);
 }
 
@@ -595,6 +609,12 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const name = state.currentName || 'Friend';
+  const senderSignature = state.senderName ? `${state.senderName} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
+  let shareUrl = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`;
+  if (state.senderName) {
+    shareUrl += `&sender=${encodeURIComponent(state.senderName)}`;
+  }
+
   return `Dear ${name}, ❤️
 
 Wishing you a very Happy 80th Independence Day! 🇮🇳
@@ -606,10 +626,10 @@ Let us celebrate the spirit of freedom and work together for a brighter and stro
 Jai Hind! 🇮🇳❤️
 
 With Love & Best Wishes ❤️
-— Omprasad Bhaskar Padwalkar 🇮🇳
+— ${senderSignature}
 
 Generate your personalized 80th Independence Day wish here:
-${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`;
+${shareUrl}`;
 }
 
 function shareOnWhatsApp() {
@@ -877,10 +897,17 @@ function startOpeningSequence() {
 function checkUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
   const nameParam = urlParams.get('name');
+  const senderParam = urlParams.get('sender');
 
   if (nameParam && nameParam.trim() !== '') {
-    const nameInput = document.getElementById('userNameInput');
-    if (nameInput) nameInput.value = nameParam.trim();
+    const receiverInput = document.getElementById('userNameInput');
+    const senderInput = document.getElementById('userSenderInput');
+
+    if (receiverInput) receiverInput.value = nameParam.trim();
+    if (senderParam && senderParam.trim() !== '' && senderInput) {
+      senderInput.value = senderParam.trim();
+      state.senderName = senderParam.trim();
+    }
     generateWish(nameParam.trim());
   }
 }
@@ -895,6 +922,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Start automatic opening sequence immediately on website opening
   startOpeningSequence();
+
+  // Check URL parameters for direct recipient links
+  checkUrlParams();
+
+  // Mode Switcher Tabs (Quick Wish vs Send Personal Wish)
+  const tabQuickWish = document.getElementById('tabQuickWish');
+  const tabSendWish = document.getElementById('tabSendWish');
+  const senderInputGroup = document.getElementById('senderInputGroup');
+  const quickNamesWrapper = document.getElementById('quickNamesWrapper');
+  const formTitle = document.getElementById('formTitle');
+
+  if (tabQuickWish && tabSendWish) {
+    tabQuickWish.addEventListener('click', () => {
+      tabQuickWish.classList.add('active');
+      tabSendWish.classList.remove('active');
+      if (senderInputGroup) senderInputGroup.classList.add('hidden');
+      if (quickNamesWrapper) quickNamesWrapper.classList.remove('hidden');
+      if (formTitle) formTitle.textContent = 'Who would you like to wish today? ❤️';
+    });
+
+    tabSendWish.addEventListener('click', () => {
+      tabSendWish.classList.add('active');
+      tabQuickWish.classList.remove('active');
+      if (senderInputGroup) senderInputGroup.classList.remove('hidden');
+      if (quickNamesWrapper) quickNamesWrapper.classList.add('hidden');
+      if (formTitle) formTitle.textContent = 'Create Custom Sender & Receiver Wish 💌';
+    });
+  }
 
   // Form Submit
   const nameForm = document.getElementById('nameForm');

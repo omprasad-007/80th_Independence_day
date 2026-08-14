@@ -635,6 +635,41 @@ body {
   margin-top: 0.5rem;
 }
 
+/* Wish Mode Switcher Tabs */
+.wish-mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.3rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mode-tab {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-tab:hover {
+  color: #F8FAFC;
+}
+
+.mode-tab.active {
+  background: linear-gradient(135deg, var(--saffron-bright), #D97706);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 153, 51, 0.35);
+}
+
 .opening-greeting-box {
   display: flex;
   flex-direction: column;

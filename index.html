@@ -145,19 +145,26 @@
         <div class="glass-card form-card">
           <div class="card-header">
             <div class="card-icon">❤️</div>
-            <h2>Who would you like to wish today? ❤️</h2>
-            <p>Enter a name to generate your personalized wish</p>
+            <h2 id="formTitle">Who would you like to wish today? ❤️</h2>
+            <p id="formSubtext">Enter names to generate your personalized wish card</p>
+
+            <!-- Mode Switcher Tabs (Quick Wish vs Sender & Receiver Wish) -->
+            <div class="wish-mode-tabs">
+              <button type="button" class="mode-tab active" id="tabQuickWish">Quick Wish ⚡</button>
+              <button type="button" class="mode-tab" id="tabSendWish">Send Personal Wish 💌</button>
+            </div>
           </div>
 
           <form id="nameForm" class="name-form" action="javascript:void(0);">
+            <!-- Receiver Name Input -->
             <div class="input-group">
-              <label for="userNameInput" class="sr-only">Enter Their Name</label>
+              <label for="userNameInput" class="sr-only">Enter Receiver's Name</label>
               <div class="input-wrapper">
-                <span class="input-icon">✨</span>
+                <span class="input-icon">👤</span>
                 <input
                   type="text"
                   id="userNameInput"
-                  placeholder="Enter Their Name"
+                  placeholder="Enter Receiver's Name"
                   maxlength="40"
                   autocomplete="off"
                   required
@@ -166,8 +173,23 @@
               </div>
             </div>
 
+            <!-- Sender Name Input (Visible in "Send Personal Wish" mode) -->
+            <div class="input-group hidden" id="senderInputGroup">
+              <label for="userSenderInput" class="sr-only">Enter Your Name (Sender)</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✍️</span>
+                <input
+                  type="text"
+                  id="userSenderInput"
+                  placeholder="Enter Your Name (Sender)"
+                  maxlength="40"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
             <!-- Quick Sample Names Pills -->
-            <div class="quick-names">
+            <div class="quick-names" id="quickNamesWrapper">
               <span class="quick-label">Try quick name:</span>
               <button type="button" class="name-pill" data-name="Priya">Priya</button>
               <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
@@ -220,7 +242,7 @@
             </p>
           </div>
 
-          <!-- Developer Signature Section -->
+          <!-- Developer / Custom Sender Signature Section -->
           <div class="developer-signature-box">
             <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
             <p class="sig-note">With Love & Best Wishes ❤️</p>
@@ -232,7 +254,7 @@
               <div class="dev-info">
                 <div class="dev-name-badge">
                   <span class="sig-dash">—</span>
-                  <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+                  <span class="dev-name" id="senderNameText">Omprasad Bhaskar Padwalkar 🇮🇳</span>
                 </div>
               </div>
             </div>
