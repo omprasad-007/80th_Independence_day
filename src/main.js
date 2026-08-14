@@ -169,11 +169,119 @@ function initParticleCanvas() {
 
   const hearts = Array.from({ length: 35 }, () => new FloatingHeart());
   const particles = Array.from({ length: 45 }, () => new TricolorParticle());
+  const activeFireworks = [];
+
+  // ==========================================
+  // 🎆 Firecracker Explosions System
+  // ==========================================
+  class FireworkSpark {
+    constructor(x, y, color, isRing = false) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      const angle = Math.random() * Math.PI * 2;
+      const speed = isRing ? (Math.random() * 2 + 4) : (Math.random() * 6 + 1.5);
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed;
+      this.gravity = 0.08;
+      this.friction = 0.95;
+      this.alpha = 1;
+      this.decay = Math.random() * 0.02 + 0.015;
+      this.radius = Math.random() * 3 + 1.5;
+    }
+
+    update() {
+      this.vx *= this.friction;
+      this.vy *= this.friction;
+      this.vy += this.gravity;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.alpha -= this.decay;
+    }
+
+    draw() {
+      if (this.alpha <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.alpha);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  class FireworkRocket {
+    constructor(targetX, targetY) {
+      this.x = targetX + (Math.random() - 0.5) * 60;
+      this.y = height + 20;
+      this.targetY = targetY;
+      this.speed = Math.random() * 4 + 10;
+      this.color = tricolorColors[Math.floor(Math.random() * tricolorColors.length)];
+      this.exploded = false;
+      this.sparks = [];
+    }
+
+    update() {
+      if (!this.exploded) {
+        this.y -= this.speed;
+        if (this.y <= this.targetY) {
+          this.explode();
+        }
+      } else {
+        this.sparks.forEach(s => s.update());
+        this.sparks = this.sparks.filter(s => s.alpha > 0);
+      }
+    }
+
+    explode() {
+      this.exploded = true;
+      const count = 55;
+      const isRingPattern = Math.random() > 0.5;
+
+      for (let i = 0; i < count; i++) {
+        const sparkColor = tricolorColors[Math.floor(Math.random() * tricolorColors.length)];
+        this.sparks.push(new FireworkSpark(this.x, this.y, sparkColor, isRingPattern));
+      }
+
+      // Play soft festive burst sound if music is enabled
+      playFireworkBurstSound();
+    }
+
+    draw() {
+      if (!this.exploded) {
+        ctx.save();
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        this.sparks.forEach(s => s.draw());
+      }
+    }
+  }
+
+  // Trigger multi-stage firecracker burst (3 to 5 seconds)
+  window.triggerFirecrackers = function() {
+    const totalRockets = 8;
+    for (let i = 0; i < totalRockets; i++) {
+      setTimeout(() => {
+        const tx = (width * 0.15) + Math.random() * (width * 0.7);
+        const ty = (height * 0.15) + Math.random() * (height * 0.45);
+        activeFireworks.push(new FireworkRocket(tx, ty));
+      }, i * 450);
+    }
+  };
 
   function animate() {
     ctx.clearRect(0, 0, width, height);
     
-    // Draw particles first, then glowing hearts
+    // Draw background particles & hearts
     particles.forEach(p => {
       p.update();
       p.draw();
@@ -183,6 +291,16 @@ function initParticleCanvas() {
       h.update();
       h.draw();
     });
+
+    // Draw active fireworks
+    for (let i = activeFireworks.length - 1; i >= 0; i--) {
+      const fw = activeFireworks[i];
+      fw.update();
+      fw.draw();
+      if (fw.exploded && fw.sparks.length === 0) {
+        activeFireworks.splice(i, 1);
+      }
+    }
 
     requestAnimationFrame(animate);
   }
@@ -328,6 +446,28 @@ function startPatrioticAudio() {
   }
 }
 
+function playFireworkBurstSound() {
+  if (!state.isPlayingAudio || !state.audioContext) return;
+  try {
+    const osc = state.audioContext.createOscillator();
+    const gain = state.audioContext.createGain();
+    const now = state.audioContext.currentTime;
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(500 + Math.random() * 400, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.18);
+
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(state.audioContext.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.2);
+  } catch (e) {}
+}
+
 function stopPatrioticAudio() {
   if (state.audioContext) {
     state.audioContext.suspend();
@@ -366,7 +506,12 @@ function generateWish(name) {
     wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // Trigger Tricolor Confetti Burst!
+  // 🎇 Trigger 3-5s Firecrackers Explosion Celebration Sequence!
+  if (typeof window.triggerFirecrackers === 'function') {
+    window.triggerFirecrackers();
+  }
+
+  // 🇮🇳 Trigger Tricolor Confetti Burst!
   triggerTricolorConfetti();
 
   // Update URL search param for direct sharing capability
