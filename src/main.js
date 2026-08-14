@@ -309,8 +309,10 @@ function initParticleCanvas() {
 }
 
 // ==========================================
-// Web Audio API Patriotic Instrumental Synthesizer (Vande Mataram - Sujalam Sufalam)
+// Patriotic Instrumental Audio Engine (Audio File + Web Audio Synthesizer Fallback)
 // ==========================================
+let bgAudioElement = null;
+
 function toggleAudio() {
   const audioBtn = document.getElementById('audioToggle');
   const audioLabel = document.getElementById('audioLabel');
@@ -327,11 +329,47 @@ function toggleAudio() {
     state.isPlayingAudio = true;
     audioBtn.classList.add('playing');
     if (audioLabel) audioLabel.textContent = '🎵 Vande Mataram: ON';
-    showToast('🎵 Playing Vande Mataram — Sujalam Sufalam Malayaja Shitalam... 🇮🇳', '🎶');
   }
 }
 
 function startPatrioticAudio() {
+  const candidateAudioPaths = [
+    '/music/vandemataram ringtone.mp3',
+    '/music/vandemataram_ringtone.mp3',
+    '/music/vandemataram.mp3',
+    '/music/vande_mataram.mp3',
+    '/music/vandemataram ringtone.m4a',
+    '/music/vandemataram_ringtone.m4a',
+    '/music/vandemataram_ringtone.wav'
+  ];
+
+  if (!bgAudioElement) {
+    bgAudioElement = new Audio();
+    bgAudioElement.loop = true;
+    bgAudioElement.volume = 0.45;
+  }
+
+  let trackIdx = 0;
+  const tryNextTrack = () => {
+    if (trackIdx >= candidateAudioPaths.length) {
+      // Fallback to Web Audio API Vande Mataram Synthesizer
+      startSynthesizedVandeMataram();
+      return;
+    }
+
+    bgAudioElement.src = candidateAudioPaths[trackIdx];
+    bgAudioElement.play().then(() => {
+      showToast('🎵 Playing Vande Mataram Audio Track... 🇮🇳', '🎶');
+    }).catch(() => {
+      trackIdx++;
+      tryNextTrack();
+    });
+  };
+
+  tryNextTrack();
+}
+
+function startSynthesizedVandeMataram() {
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
@@ -349,15 +387,15 @@ function startPatrioticAudio() {
     masterGain.gain.setValueAtTime(0.18, state.audioContext.currentTime);
     masterGain.connect(state.audioContext.destination);
 
-    // Continuous Indian Classical Tanpura / Drone (C4 + G4 + C3)
+    // Continuous Indian Classical Tanpura / Drone (C4 + G4)
     const droneSa = state.audioContext.createOscillator();
     const dronePa = state.audioContext.createOscillator();
     const droneGain = state.audioContext.createGain();
 
     droneSa.type = 'sine';
-    droneSa.frequency.setValueAtTime(261.63, state.audioContext.currentTime); // C4
+    droneSa.frequency.setValueAtTime(261.63, state.audioContext.currentTime);
     dronePa.type = 'triangle';
-    dronePa.frequency.setValueAtTime(392.00, state.audioContext.currentTime); // G4
+    dronePa.frequency.setValueAtTime(392.00, state.audioContext.currentTime);
 
     droneGain.gain.setValueAtTime(0.04, state.audioContext.currentTime);
     droneSa.connect(droneGain);
@@ -368,26 +406,18 @@ function startPatrioticAudio() {
     dronePa.start();
 
     // Vande Mataram Sequence ("Sujalam Sufalam Malayaja Shitalam...")
-    // Frequencies: E4=329.63, G4=392.00, A4=440.00, C5=523.25, D5=587.33, E5=659.25
     const vandeMataramMelody = [
-      // Sujalam
       { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      // Sufalam
       { freq: 523.25, duration: 0.45 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      // Malayaja Shitalam (Line 1)
       { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
       { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      // Malayaja Shitalam (Line 2)
       { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
       { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      // Shasyashyamalam
       { freq: 523.25, duration: 0.35 }, { freq: 440.00, duration: 0.35 }, { freq: 392.00, duration: 0.45 },
       { freq: 440.00, duration: 0.45 }, { freq: 392.00, duration: 0.70 },
-      // Mataram
       { freq: 329.63, duration: 0.45 }, { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.90 },
-      // Vande Mataram!
       { freq: 329.63, duration: 0.50 }, { freq: 392.00, duration: 0.50 }, { freq: 440.00, duration: 0.70 },
-      { freq: 523.25, duration: 1.30 }, { freq: 0, duration: 0.8 } // Pause before loop
+      { freq: 523.25, duration: 1.30 }, { freq: 0, duration: 0.8 }
     ];
 
     let noteIndex = 0;
@@ -401,7 +431,6 @@ function startPatrioticAudio() {
       const note = vandeMataramMelody[noteIndex % vandeMataramMelody.length];
 
       if (note.freq > 0) {
-        // Main Bamboo Flute Tone (Sine + Soft Harmonics)
         const osc = state.audioContext.createOscillator();
         const harmonicOsc = state.audioContext.createOscillator();
         const noteGain = state.audioContext.createGain();
@@ -409,7 +438,6 @@ function startPatrioticAudio() {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(note.freq, state.audioContext.currentTime);
 
-        // Flute Harmonic Overtone
         harmonicOsc.type = 'triangle';
         harmonicOsc.frequency.setValueAtTime(note.freq * 2, state.audioContext.currentTime);
 
@@ -469,6 +497,9 @@ function playFireworkBurstSound() {
 }
 
 function stopPatrioticAudio() {
+  if (bgAudioElement) {
+    bgAudioElement.pause();
+  }
   if (state.audioContext) {
     state.audioContext.suspend();
   }
