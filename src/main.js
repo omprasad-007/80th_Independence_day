@@ -1,13 +1,11 @@
 import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
-import emailjs from '@emailjs/browser';
 
 // ==========================================
 // Application State & Constants
 // ==========================================
 const state = {
-  receiverName: 'Shreyash',
-  senderName: 'Omprasad Bhaskar Padwalkar',
+  currentName: '',
   isPlayingAudio: true,
   audioContext: null,
   activeOscillators: [],
@@ -335,26 +333,16 @@ function toggleAudio() {
 }
 
 function startPatrioticAudio() {
-  const mobileAudio = document.getElementById('mobileBgAudio');
-  
-  if (mobileAudio) {
-    mobileAudio.volume = 0.5;
-    mobileAudio.play().then(() => {
-      showToast('🎵 Playing Vande Mataram Audio Track... 🇮🇳', '🎶');
-    }).catch(() => {
-      // If HTML5 audio is blocked by mobile autoplay policy, fallback to AudioContext or retry on touch
-      startSynthesizedVandeMataram();
-    });
-    return;
-  }
-
   const candidateAudioPaths = [
     '/music/vandemataram ringtone.mpeg',
     '/music/vandemataram_ringtone.mpeg',
     '/music/vandemataram ringtone.mp3',
     '/music/vandemataram_ringtone.mp3',
     '/music/vandemataram.mp3',
-    '/music/vande_mataram.mp3'
+    '/music/vande_mataram.mp3',
+    '/music/vandemataram ringtone.m4a',
+    '/music/vandemataram_ringtone.m4a',
+    '/music/vandemataram_ringtone.wav'
   ];
 
   if (!bgAudioElement) {
@@ -366,6 +354,7 @@ function startPatrioticAudio() {
   let trackIdx = 0;
   const tryNextTrack = () => {
     if (trackIdx >= candidateAudioPaths.length) {
+      // Fallback to Web Audio API Vande Mataram Synthesizer
       startSynthesizedVandeMataram();
       return;
     }
@@ -519,75 +508,141 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic (Single Stage Flow)
+// Form & Wish Generation Logic (Cinematic Opening Sequence)
 // ==========================================
-function startOpeningWelcomeSequence() {
-  const greetingStage = document.getElementById('openingGreetingStage');
-  const nameInputStage = document.getElementById('nameInputStage');
-  const wishCardStage = document.getElementById('wishCardStage');
+function generateWish(name) {
+  if (!name || name.trim() === '') {
+    showToast('Please enter your name to generate your wish! 🇮🇳', '⚠️');
+    return;
+  }
+
+  const cleanName = name.trim();
+  state.currentName = cleanName;
+
+  // Run Cinematic Opening Animation Sequence
+  runCinematicIntroSequence(cleanName);
+}
+
+function runCinematicIntroSequence(cleanName) {
+  const formSection = document.getElementById('formSection');
+  const wishSection = document.getElementById('wishSection');
+  const exportWishCard = document.getElementById('exportWishCard');
   const boomOverlay = document.getElementById('boomFlashOverlay');
+  const nameText = document.getElementById('nameText');
 
-  if (wishCardStage) wishCardStage.classList.add('hidden');
+  if (nameText) nameText.textContent = cleanName;
 
-  // 0.0s → BOOM Effect
+  // Reset all cinematic step elements
+  const steps = [
+    'stepHappy', 'stepTitle', 'stepDate', 'stepName',
+    'stepWish1', 'stepWish2', 'stepWish3', 'stepSig'
+  ];
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('hidden');
+      el.classList.remove('anim-scale-up', 'anim-fade-up');
+    }
+  });
+
+  if (exportWishCard) {
+    exportWishCard.classList.remove('final-celebration-aura');
+  }
+
+  // 0.0s → 🎆 BOOM INTRO
   if (boomOverlay) {
     boomOverlay.classList.remove('hidden');
     setTimeout(() => boomOverlay.classList.add('hidden'), 750);
   }
+
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  // 0.8s → Opening Greeting Stage Active
-  if (greetingStage) {
-    greetingStage.classList.remove('hidden');
+  if (formSection && wishSection) {
+    formSection.classList.add('hidden');
+    wishSection.classList.remove('hidden');
+    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // 3.5s → Transition smoothly away from opening greeting to Name Section ("Who would you like to wish? ❤️")
+  // 0.7s → 🇮🇳 HAPPY 80th
   setTimeout(() => {
-    if (greetingStage) greetingStage.classList.add('hidden');
-    if (nameInputStage) {
-      nameInputStage.classList.remove('hidden');
+    const stepHappy = document.getElementById('stepHappy');
+    if (stepHappy) {
+      stepHappy.classList.remove('hidden');
+      stepHappy.classList.add('anim-scale-up');
     }
-  }, 3500);
-}
+  }, 700);
 
-function generateWish() {
-  const receiverInput = document.getElementById('receiverNameInput');
-  const senderInput = document.getElementById('senderNameInput');
+  // 1.3s → INDEPENDENCE DAY 🇮🇳
+  setTimeout(() => {
+    const stepTitle = document.getElementById('stepTitle');
+    if (stepTitle) {
+      stepTitle.classList.remove('hidden');
+      stepTitle.classList.add('anim-scale-up');
+    }
+  }, 1300);
 
-  const receiverName = receiverInput ? receiverInput.value.trim() : '';
-  const senderName = senderInput && senderInput.value.trim() !== '' ? senderInput.value.trim() : 'Omprasad Bhaskar Padwalkar';
+  // 2.2s → 15 AUGUST 2026
+  setTimeout(() => {
+    const stepDate = document.getElementById('stepDate');
+    if (stepDate) {
+      stepDate.classList.remove('hidden');
+      stepDate.classList.add('anim-scale-up');
+    }
+  }, 2200);
 
-  if (!receiverName) {
-    showToast("Please enter the receiver's name to generate your wish! 🇮🇳", '⚠️');
-    return;
-  }
+  // 3.0s → ❤️ Dear [NAME] ❤️
+  setTimeout(() => {
+    const stepName = document.getElementById('stepName');
+    if (stepName) {
+      stepName.classList.remove('hidden');
+      stepName.classList.add('anim-scale-up');
+    }
+  }, 3000);
 
-  state.receiverName = receiverName;
-  state.senderName = senderName;
+  // 4.0s → 💌 Personalized Wish Line by Line
+  setTimeout(() => {
+    const stepWish1 = document.getElementById('stepWish1');
+    if (stepWish1) {
+      stepWish1.classList.remove('hidden');
+      stepWish1.classList.add('anim-fade-up');
+    }
+  }, 4000);
 
-  const greetingStage = document.getElementById('openingGreetingStage');
-  const nameInputStage = document.getElementById('nameInputStage');
-  const wishCardStage = document.getElementById('wishCardStage');
-  const receiverNameText = document.getElementById('receiverNameText');
-  const senderNameText = document.getElementById('senderNameText');
+  setTimeout(() => {
+    const stepWish2 = document.getElementById('stepWish2');
+    if (stepWish2) {
+      stepWish2.classList.remove('hidden');
+      stepWish2.classList.add('anim-fade-up');
+    }
+  }, 4400);
 
-  if (greetingStage) greetingStage.classList.add('hidden');
-  if (nameInputStage) nameInputStage.classList.add('hidden');
-  
-  if (receiverNameText) receiverNameText.textContent = receiverName;
-  if (senderNameText) senderNameText.textContent = senderName;
+  setTimeout(() => {
+    const stepWish3 = document.getElementById('stepWish3');
+    if (stepWish3) {
+      stepWish3.classList.remove('hidden');
+      stepWish3.classList.add('anim-fade-up');
+    }
+  }, 4800);
 
-  if (wishCardStage) {
-    wishCardStage.classList.remove('hidden');
-    wishCardStage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  setTimeout(() => {
+    const stepSig = document.getElementById('stepSig');
+    if (stepSig) {
+      stepSig.classList.remove('hidden');
+      stepSig.classList.add('anim-fade-up');
+    }
+  }, 5200);
 
-  // Celebration sequence
-  triggerTricolorConfetti();
-  if (typeof window.triggerFirecrackers === 'function') {
-    window.triggerFirecrackers();
-  }
+  // 6.0s → 🎆 FINAL CELEBRATION
+  setTimeout(() => {
+    if (typeof window.triggerFirecrackers === 'function') {
+      window.triggerFirecrackers();
+    }
+    triggerTricolorConfetti();
+    if (exportWishCard) {
+      exportWishCard.classList.add('final-celebration-aura');
+    }
+  }, 6000);
 }
 
 function triggerTricolorConfetti() {
@@ -633,10 +688,7 @@ function triggerTricolorConfetti() {
 // Sharing & Download Actions
 // ==========================================
 function getWishText() {
-  const receiver = state.receiverName || 'Friend';
-  const sender = state.senderName || 'Omprasad Bhaskar Padwalkar';
-
-  return `Dear ${receiver}, ❤️
+  return `Dear ${state.currentName || 'Friend'}, ❤️
 
 Wishing you a very Happy 80th Independence Day! 🇮🇳
 
@@ -645,9 +697,9 @@ May the spirit of freedom, unity, courage, and hope always remain in your heart.
 Jai Hind! 🇮🇳❤️
 
 With Love & Best Wishes ❤️
-— ${sender} 🇮🇳
+— Omprasad Bhaskar Padwalkar 🇮🇳
 
-Celebrate & generate your personalized 80th Independence Day wish here:
+Generate your personalized 80th Independence Day wish here:
 ${window.location.origin}${window.location.pathname}`;
 }
 
@@ -660,11 +712,10 @@ function shareOnWhatsApp() {
 
 async function shareNativeWish() {
   const wishText = getWishText();
-  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
     text: wishText,
-    url: cleanUrl
+    url: window.location.href
   };
 
   if (navigator.share) {
@@ -707,13 +758,20 @@ async function downloadWishImage() {
         if (clonedCard) {
           clonedCard.style.transform = 'none';
           clonedCard.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.6)';
+          
+          // Reveal all cinematic steps in exported image
+          clonedDoc.querySelectorAll('.cinematic-step').forEach(el => {
+            el.classList.remove('hidden');
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+          });
         }
       }
     });
 
     const link = document.createElement('a');
-    const safeReceiver = (state.receiverName || 'Friend').replace(/[^a-z0-9]/gi, '_');
-    link.download = `Independence_Day_Wish_${safeReceiver}.png`;
+    const safeName = (state.currentName || 'Friend').replace(/[^a-z0-9]/gi, '_');
+    link.download = `Independence_Day_Wish_${safeName}_Omprasad.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
 
@@ -725,47 +783,19 @@ async function downloadWishImage() {
   }
 }
 
-function sendThankYouEmail() {
-  const senderName = state.senderName || 'A Patriotic Indian Citizen';
-  const receiverName = state.receiverName || 'Receiver';
-
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_independence';
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_thank_you';
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_key_demo';
-
-  const templateParams = {
-    to_email: 'omprasadpadwalkar07@gmail.com',
-    from_name: senderName,
-    subject: '🇮🇳 Someone sent you a Thank You!',
-    message_body: `Someone named ${senderName} clicked the Thank You button for ${receiverName} on your Independence Day website. ❤️🇮🇳\n\nMessage: Thank you! ❤️\n15 August 2026 — India's 80th Independence Day 🇮🇳`,
-    date: '15 August 2026'
-  };
-
-  showToast('Sending your love... ❤️', '💌');
-
-  emailjs.send(serviceId, templateId, templateParams, publicKey)
-    .then(() => {
-      showToast('Thank you for your love! ❤️🇮🇳', '❤️');
-      triggerTricolorConfetti();
-    })
-    .catch((err) => {
-      console.warn('EmailJS notification notice:', err);
-      showToast('Thank you for your love! ❤️🇮🇳', '❤️');
-      triggerTricolorConfetti();
-    });
-}
-
 function resetForm() {
-  const nameInputStage = document.getElementById('nameInputStage');
-  const wishCardStage = document.getElementById('wishCardStage');
-  const receiverInput = document.getElementById('receiverNameInput');
+  const formSection = document.getElementById('formSection');
+  const wishSection = document.getElementById('wishSection');
+  const nameInput = document.getElementById('userNameInput');
 
-  if (wishCardStage) wishCardStage.classList.add('hidden');
-  if (nameInputStage) nameInputStage.classList.remove('hidden');
+  if (formSection && wishSection) {
+    wishSection.classList.add('hidden');
+    formSection.classList.remove('hidden');
+  }
 
-  if (receiverInput) {
-    receiverInput.value = '';
-    receiverInput.focus();
+  if (nameInput) {
+    nameInput.value = '';
+    nameInput.focus();
   }
 }
 
@@ -889,22 +919,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Form Submit
   const nameForm = document.getElementById('nameForm');
-  const receiverInput = document.getElementById('receiverNameInput');
+  const nameInput = document.getElementById('userNameInput');
+  const clearInputBtn = document.getElementById('clearInputBtn');
 
-  if (nameForm) {
+  if (nameForm && nameInput) {
     nameForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      generateWish();
+      generateWish(nameInput.value);
+    });
+
+    nameInput.addEventListener('input', () => {
+      if (clearInputBtn) {
+        clearInputBtn.classList.toggle('hidden', nameInput.value === '');
+      }
     });
   }
 
-  // Quick Name Pills (sets receiver's name)
+  if (clearInputBtn && nameInput) {
+    clearInputBtn.addEventListener('click', () => {
+      nameInput.value = '';
+      clearInputBtn.classList.add('hidden');
+      nameInput.focus();
+    });
+  }
+
+  // Quick Name Pills
   const quickPills = document.querySelectorAll('.name-pill');
   quickPills.forEach(pill => {
     pill.addEventListener('click', () => {
       const selectedName = pill.getAttribute('data-name');
-      if (receiverInput) receiverInput.value = selectedName;
-      generateWish();
+      if (nameInput) nameInput.value = selectedName;
+      if (clearInputBtn) clearInputBtn.classList.remove('hidden');
+      generateWish(selectedName);
     });
   });
 
@@ -927,27 +973,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetWishBtn = document.getElementById('resetWishBtn');
   if (resetWishBtn) resetWishBtn.addEventListener('click', resetForm);
 
-  const thankYouBtn = document.getElementById('thankYouBtn');
-  if (thankYouBtn) thankYouBtn.addEventListener('click', sendThankYouEmail);
-
-  // Auto-start opening greeting animation immediately on load
-  startOpeningWelcomeSequence();
-
-  // Auto-start music on page load & unlock on first mobile gesture/interaction
+  // Auto-start music on page load & unlock on first interaction
   startPatrioticAudio();
-  const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'click', 'scroll', 'keydown'];
   const unlockAudio = () => {
     if (state.isPlayingAudio) {
       startPatrioticAudio();
     }
-    gestureEvents.forEach(evt => document.removeEventListener(evt, unlockAudio));
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+    document.removeEventListener('keydown', unlockAudio);
   };
-  gestureEvents.forEach(evt => document.addEventListener(evt, unlockAudio, { passive: true }));
-
-  // Keep audio playing on mobile visibility change
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && state.isPlayingAudio) {
-      startPatrioticAudio();
-    }
-  });
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+  document.addEventListener('keydown', unlockAudio);
 });
