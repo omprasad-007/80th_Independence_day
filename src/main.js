@@ -6,7 +6,7 @@ import html2canvas from 'html2canvas';
 // ==========================================
 const state = {
   currentName: '',
-  isPlayingAudio: false,
+  isPlayingAudio: true,
   audioContext: null,
   activeOscillators: [],
   currentQuoteIndex: 0,
@@ -892,4 +892,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Check URL params for direct shared links
   checkUrlParams();
+
+  // Auto-start music on page load & unlock on first interaction
+  startPatrioticAudio();
+  const unlockAudio = () => {
+    if (state.isPlayingAudio) {
+      startPatrioticAudio();
+    }
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+    document.removeEventListener('keydown', unlockAudio);
+  };
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+  document.addEventListener('keydown', unlockAudio);
 });
