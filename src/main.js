@@ -191,7 +191,7 @@ function initParticleCanvas() {
 }
 
 // ==========================================
-// Web Audio API Patriotic Ambient Synthesizer
+// Web Audio API Patriotic Instrumental Synthesizer (Vande Mataram - Sujalam Sufalam)
 // ==========================================
 function toggleAudio() {
   const audioBtn = document.getElementById('audioToggle');
@@ -208,8 +208,8 @@ function toggleAudio() {
     startPatrioticAudio();
     state.isPlayingAudio = true;
     audioBtn.classList.add('playing');
-    if (audioLabel) audioLabel.textContent = 'Music: ON 🎵';
-    showToast('🎵 Playing Ambient Patriotic Soundscape...', '🎶');
+    if (audioLabel) audioLabel.textContent = '🎵 Vande Mataram: ON';
+    showToast('🎵 Playing Vande Mataram — Sujalam Sufalam Malayaja Shitalam... 🇮🇳', '🎶');
   }
 }
 
@@ -226,44 +226,102 @@ function startPatrioticAudio() {
       state.audioContext.resume();
     }
 
-    // Pentatonic / Raga Desh frequencies (D, E, F#, G, A, B, C#)
-    const notes = [293.66, 329.63, 369.99, 440.00, 493.88, 587.33];
-    
-    // Master gain
+    // Master Volume Gain
     const masterGain = state.audioContext.createGain();
-    masterGain.gain.setValueAtTime(0.12, state.audioContext.currentTime);
+    masterGain.gain.setValueAtTime(0.18, state.audioContext.currentTime);
     masterGain.connect(state.audioContext.destination);
 
-    // Create a drone pad + gentle melody loop using Web Audio API
-    let step = 0;
-    const playNote = () => {
-      if (!state.isPlayingAudio || !state.audioContext) return;
+    // Continuous Indian Classical Tanpura / Drone (C4 + G4 + C3)
+    const droneSa = state.audioContext.createOscillator();
+    const dronePa = state.audioContext.createOscillator();
+    const droneGain = state.audioContext.createGain();
 
-      const osc = state.audioContext.createOscillator();
-      const noteGain = state.audioContext.createGain();
+    droneSa.type = 'sine';
+    droneSa.frequency.setValueAtTime(261.63, state.audioContext.currentTime); // C4
+    dronePa.type = 'triangle';
+    dronePa.frequency.setValueAtTime(392.00, state.audioContext.currentTime); // G4
 
-      const freq = notes[step % notes.length];
-      osc.type = step % 2 === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, state.audioContext.currentTime);
+    droneGain.gain.setValueAtTime(0.04, state.audioContext.currentTime);
+    droneSa.connect(droneGain);
+    dronePa.connect(droneGain);
+    droneGain.connect(masterGain);
 
-      const now = state.audioContext.currentTime;
-      noteGain.gain.setValueAtTime(0.001, now);
-      noteGain.gain.exponentialRampToValueAtTime(0.08, now + 0.4);
-      noteGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+    droneSa.start();
+    dronePa.start();
 
-      osc.connect(noteGain);
-      noteGain.connect(masterGain);
+    // Vande Mataram Sequence ("Sujalam Sufalam Malayaja Shitalam...")
+    // Frequencies: E4=329.63, G4=392.00, A4=440.00, C5=523.25, D5=587.33, E5=659.25
+    const vandeMataramMelody = [
+      // Sujalam
+      { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
+      // Sufalam
+      { freq: 523.25, duration: 0.45 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
+      // Malayaja Shitalam (Line 1)
+      { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
+      { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
+      // Malayaja Shitalam (Line 2)
+      { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
+      { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
+      // Shasyashyamalam
+      { freq: 523.25, duration: 0.35 }, { freq: 440.00, duration: 0.35 }, { freq: 392.00, duration: 0.45 },
+      { freq: 440.00, duration: 0.45 }, { freq: 392.00, duration: 0.70 },
+      // Mataram
+      { freq: 329.63, duration: 0.45 }, { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.90 },
+      // Vande Mataram!
+      { freq: 329.63, duration: 0.50 }, { freq: 392.00, duration: 0.50 }, { freq: 440.00, duration: 0.70 },
+      { freq: 523.25, duration: 1.30 }, { freq: 0, duration: 0.8 } // Pause before loop
+    ];
 
-      osc.start(now);
-      osc.stop(now + 2.6);
+    let noteIndex = 0;
 
-      step++;
+    const playNextNote = () => {
+      if (!state.isPlayingAudio || !state.audioContext) {
+        try { droneSa.stop(); dronePa.stop(); } catch(e) {}
+        return;
+      }
+
+      const note = vandeMataramMelody[noteIndex % vandeMataramMelody.length];
+
+      if (note.freq > 0) {
+        // Main Bamboo Flute Tone (Sine + Soft Harmonics)
+        const osc = state.audioContext.createOscillator();
+        const harmonicOsc = state.audioContext.createOscillator();
+        const noteGain = state.audioContext.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(note.freq, state.audioContext.currentTime);
+
+        // Flute Harmonic Overtone
+        harmonicOsc.type = 'triangle';
+        harmonicOsc.frequency.setValueAtTime(note.freq * 2, state.audioContext.currentTime);
+
+        const now = state.audioContext.currentTime;
+        const dur = note.duration;
+
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.exponentialRampToValueAtTime(0.14, now + 0.08);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        osc.connect(noteGain);
+        harmonicOsc.connect(noteGain);
+        noteGain.connect(masterGain);
+
+        osc.start(now);
+        harmonicOsc.start(now);
+
+        osc.stop(now + dur + 0.05);
+        harmonicOsc.stop(now + dur + 0.05);
+      }
+
+      noteIndex++;
       if (state.isPlayingAudio) {
-        setTimeout(playNote, 1200 + Math.random() * 800);
+        setTimeout(playNextNote, note.duration * 1000);
+      } else {
+        try { droneSa.stop(); dronePa.stop(); } catch(e) {}
       }
     };
 
-    playNote();
+    playNextNote();
 
   } catch (err) {
     console.warn('Web Audio synthesis prevented:', err);
