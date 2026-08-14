@@ -925,12 +925,38 @@ function checkUrlParams() {
 }
 
 // ==========================================
+// Performant Scroll Reveal System (IntersectionObserver)
+// ==========================================
+function initScrollReveal() {
+  const revealElements = document.querySelectorAll('.scroll-reveal');
+  if (!revealElements.length) return;
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -40px 0px',
+    threshold: 0.12
+  };
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  revealElements.forEach(el => observer.observe(el));
+}
+
+// ==========================================
 // Initialize Event Listeners
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   initParticleCanvas();
   initQuotesCarousel();
   initPledgeWall();
+  initScrollReveal();
 
   // Start automatic opening sequence immediately on website opening
   startOpeningSequence();

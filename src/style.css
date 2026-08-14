@@ -670,6 +670,44 @@ body {
   box-shadow: 0 4px 12px rgba(255, 153, 51, 0.35);
 }
 
+/* Scroll Reveal Animations (IntersectionObserver System) */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(35px) scale(0.96);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.8s ease;
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Staggered action buttons inside revealed action bar */
+.action-bar.scroll-reveal.revealed .action-btn {
+  animation: buttonPopUp 0.5s var(--ease-spring) forwards;
+}
+
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(1) { animation-delay: 0.05s; }
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(2) { animation-delay: 0.12s; }
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(3) { animation-delay: 0.19s; }
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(4) { animation-delay: 0.26s; }
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(5) { animation-delay: 0.33s; }
+.action-bar.scroll-reveal.revealed .action-btn:nth-child(6) { animation-delay: 0.40s; }
+
+@keyframes buttonPopUp {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .opening-greeting-box {
   display: flex;
   flex-direction: column;
