@@ -334,16 +334,26 @@ function toggleAudio() {
 }
 
 function startPatrioticAudio() {
+  const mobileAudio = document.getElementById('mobileBgAudio');
+  
+  if (mobileAudio) {
+    mobileAudio.volume = 0.5;
+    mobileAudio.play().then(() => {
+      showToast('🎵 Playing Vande Mataram Audio Track... 🇮🇳', '🎶');
+    }).catch(() => {
+      // If HTML5 audio is blocked by mobile autoplay policy, fallback to AudioContext or retry on touch
+      startSynthesizedVandeMataram();
+    });
+    return;
+  }
+
   const candidateAudioPaths = [
     '/music/vandemataram ringtone.mpeg',
     '/music/vandemataram_ringtone.mpeg',
     '/music/vandemataram ringtone.mp3',
     '/music/vandemataram_ringtone.mp3',
     '/music/vandemataram.mp3',
-    '/music/vande_mataram.mp3',
-    '/music/vandemataram ringtone.m4a',
-    '/music/vandemataram_ringtone.m4a',
-    '/music/vandemataram_ringtone.wav'
+    '/music/vande_mataram.mp3'
   ];
 
   if (!bgAudioElement) {
@@ -355,7 +365,6 @@ function startPatrioticAudio() {
   let trackIdx = 0;
   const tryNextTrack = () => {
     if (trackIdx >= candidateAudioPaths.length) {
-      // Fallback to Web Audio API Vande Mataram Synthesizer
       startSynthesizedVandeMataram();
       return;
     }
@@ -509,8 +518,38 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic (Cinematic Opening Sequence)
+// Form & Wish Generation Logic (Single Stage Flow)
 // ==========================================
+function startOpeningWelcomeSequence() {
+  const greetingStage = document.getElementById('openingGreetingStage');
+  const nameInputStage = document.getElementById('nameInputStage');
+  const wishCardStage = document.getElementById('wishCardStage');
+  const boomOverlay = document.getElementById('boomFlashOverlay');
+
+  if (wishCardStage) wishCardStage.classList.add('hidden');
+
+  // 0.0s → BOOM Effect
+  if (boomOverlay) {
+    boomOverlay.classList.remove('hidden');
+    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
+  }
+  triggerTricolorConfetti();
+  playFireworkBurstSound();
+
+  // 0.8s → Opening Greeting Stage Active
+  if (greetingStage) {
+    greetingStage.classList.remove('hidden');
+  }
+
+  // 3.5s → Transition smoothly away from opening greeting to Name Section ("Who would you like to wish? ❤️")
+  setTimeout(() => {
+    if (greetingStage) greetingStage.classList.add('hidden');
+    if (nameInputStage) {
+      nameInputStage.classList.remove('hidden');
+    }
+  }, 3500);
+}
+
 function generateWish(name) {
   if (!name || name.trim() === '') {
     showToast('Please enter your name to generate your wish! 🇮🇳', '⚠️');
@@ -520,125 +559,25 @@ function generateWish(name) {
   const cleanName = name.trim();
   state.currentName = cleanName;
 
-  // Run Cinematic Opening Animation Sequence
-  runCinematicIntroSequence(cleanName);
-}
-
-function runCinematicIntroSequence(cleanName) {
-  const formSection = document.getElementById('formSection');
-  const wishSection = document.getElementById('wishSection');
-  const exportWishCard = document.getElementById('exportWishCard');
-  const boomOverlay = document.getElementById('boomFlashOverlay');
+  const greetingStage = document.getElementById('openingGreetingStage');
+  const nameInputStage = document.getElementById('nameInputStage');
+  const wishCardStage = document.getElementById('wishCardStage');
   const nameText = document.getElementById('nameText');
 
+  if (greetingStage) greetingStage.classList.add('hidden');
+  if (nameInputStage) nameInputStage.classList.add('hidden');
   if (nameText) nameText.textContent = cleanName;
 
-  // Reset all cinematic step elements
-  const steps = [
-    'stepHappy', 'stepTitle', 'stepDate', 'stepName',
-    'stepWish1', 'stepWish2', 'stepSig'
-  ];
-  steps.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.classList.add('hidden');
-      el.classList.remove('anim-scale-up', 'anim-fade-up');
-    }
-  });
-
-  if (exportWishCard) {
-    exportWishCard.classList.remove('final-celebration-aura');
+  if (wishCardStage) {
+    wishCardStage.classList.remove('hidden');
+    wishCardStage.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // 0.0s → 🎆 BOOM INTRO
-  if (boomOverlay) {
-    boomOverlay.classList.remove('hidden');
-    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
-  }
-
+  // Celebration sequence
   triggerTricolorConfetti();
-  playFireworkBurstSound();
-
-  if (formSection && wishSection) {
-    formSection.classList.add('hidden');
-    wishSection.classList.remove('hidden');
-    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (typeof window.triggerFirecrackers === 'function') {
+    window.triggerFirecrackers();
   }
-
-  // 0.7s → 🇮🇳 HAPPY 80th
-  setTimeout(() => {
-    const stepHappy = document.getElementById('stepHappy');
-    if (stepHappy) {
-      stepHappy.classList.remove('hidden');
-      stepHappy.classList.add('anim-scale-up');
-    }
-  }, 700);
-
-  // 1.3s → INDEPENDENCE DAY 🇮🇳
-  setTimeout(() => {
-    const stepTitle = document.getElementById('stepTitle');
-    if (stepTitle) {
-      stepTitle.classList.remove('hidden');
-      stepTitle.classList.add('anim-scale-up');
-    }
-  }, 1300);
-
-  // 2.2s → 15 AUGUST 2026
-  setTimeout(() => {
-    const stepDate = document.getElementById('stepDate');
-    if (stepDate) {
-      stepDate.classList.remove('hidden');
-      stepDate.classList.add('anim-scale-up');
-    }
-  }, 2200);
-
-  // 3.0s → ❤️ MAIN NAME REVEAL (Happy Independence Day, [NAME]! 🇮🇳❤️)
-  setTimeout(() => {
-    const stepName = document.getElementById('stepName');
-    if (stepName) {
-      stepName.classList.remove('hidden');
-      stepName.classList.add('anim-scale-up');
-      triggerTricolorConfetti();
-    }
-  }, 3000);
-
-  // 4.0s → 💌 Wish Content Paragraph
-  setTimeout(() => {
-    const stepWish1 = document.getElementById('stepWish1');
-    if (stepWish1) {
-      stepWish1.classList.remove('hidden');
-      stepWish1.classList.add('anim-fade-up');
-    }
-  }, 4000);
-
-  // 4.6s → Jai Hind! 🇮🇳❤️
-  setTimeout(() => {
-    const stepWish2 = document.getElementById('stepWish2');
-    if (stepWish2) {
-      stepWish2.classList.remove('hidden');
-      stepWish2.classList.add('anim-fade-up');
-    }
-  }, 4600);
-
-  // 5.2s → Signature (With Love & Best Wishes ❤️ — Omprasad Bhaskar Padwalkar 🇮🇳)
-  setTimeout(() => {
-    const stepSig = document.getElementById('stepSig');
-    if (stepSig) {
-      stepSig.classList.remove('hidden');
-      stepSig.classList.add('anim-fade-up');
-    }
-  }, 5200);
-
-  // 6.0s → 🎆 FINAL CELEBRATION
-  setTimeout(() => {
-    if (typeof window.triggerFirecrackers === 'function') {
-      window.triggerFirecrackers();
-    }
-    triggerTricolorConfetti();
-    if (exportWishCard) {
-      exportWishCard.classList.add('final-celebration-aura');
-    }
-  }, 6000);
 }
 
 function triggerTricolorConfetti() {
@@ -809,14 +748,12 @@ function sendThankYouEmail() {
 }
 
 function resetForm() {
-  const formSection = document.getElementById('formSection');
-  const wishSection = document.getElementById('wishSection');
+  const nameInputStage = document.getElementById('nameInputStage');
+  const wishCardStage = document.getElementById('wishCardStage');
   const nameInput = document.getElementById('userNameInput');
 
-  if (formSection && wishSection) {
-    wishSection.classList.add('hidden');
-    formSection.classList.remove('hidden');
-  }
+  if (wishCardStage) wishCardStage.classList.add('hidden');
+  if (nameInputStage) nameInputStage.classList.remove('hidden');
 
   if (nameInput) {
     nameInput.value = '';
@@ -1001,17 +938,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const thankYouBtn = document.getElementById('thankYouBtn');
   if (thankYouBtn) thankYouBtn.addEventListener('click', sendThankYouEmail);
 
-  // Auto-start music on page load & unlock on first interaction
+  // Auto-start opening greeting animation immediately on load
+  startOpeningWelcomeSequence();
+
+  // Auto-start music on page load & unlock on first mobile gesture/interaction
   startPatrioticAudio();
+  const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'click', 'scroll', 'keydown'];
   const unlockAudio = () => {
     if (state.isPlayingAudio) {
       startPatrioticAudio();
     }
-    document.removeEventListener('click', unlockAudio);
-    document.removeEventListener('touchstart', unlockAudio);
-    document.removeEventListener('keydown', unlockAudio);
+    gestureEvents.forEach(evt => document.removeEventListener(evt, unlockAudio));
   };
-  document.addEventListener('click', unlockAudio);
-  document.addEventListener('touchstart', unlockAudio);
-  document.addEventListener('keydown', unlockAudio);
+  gestureEvents.forEach(evt => document.addEventListener(evt, unlockAudio, { passive: true }));
+
+  // Keep audio playing on mobile visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.isPlayingAudio) {
+      startPatrioticAudio();
+    }
+  });
 });

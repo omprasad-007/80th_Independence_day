@@ -306,6 +306,69 @@ body {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Hero Stage Container */
+.hero-stage-section {
+  position: relative;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 1rem 1.5rem;
+  text-align: center;
+  min-height: 480px;
+}
+
+.greeting-stage {
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInWish 0.6s var(--ease-spring);
+}
+
+.date-pill {
+  background: rgba(255, 153, 51, 0.15);
+  border: 1px solid rgba(255, 153, 51, 0.35);
+  color: var(--saffron-bright);
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  box-shadow: 0 4px 20px rgba(255, 153, 51, 0.15);
+}
+
+.opening-greeting-title {
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 5.8vw, 4rem);
+  font-weight: 900;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  margin-bottom: 1.25rem;
+  letter-spacing: 1px;
+}
+
+.opening-greeting-subtitle {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.name-stage {
+  animation: fadeInWish 0.6s var(--ease-spring);
+}
+
+.wish-stage {
+  animation: fadeInWish 0.6s var(--ease-spring);
+}
+
 /* Glassmorphism Cards */
 .glass-card {
   background: var(--navy-card);

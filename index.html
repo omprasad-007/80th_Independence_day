@@ -48,15 +48,21 @@
 
   <main class="main-container">
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <!-- Animated Ashoka Chakra Emblem Background -->
+    <!-- Hidden Background Audio Element for Mobile Compatibility -->
+    <audio id="mobileBgAudio" src="/music/vandemataram ringtone.mpeg" loop playsinline preload="auto"></audio>
+
+    <!-- Shockwave BOOM Flash Overlay -->
+    <div id="boomFlashOverlay" class="boom-overlay hidden" aria-hidden="true"></div>
+
+    <!-- Main Unified Hero Welcome Stage Section -->
+    <section class="hero-stage-section" id="heroStage">
+      
+      <!-- Ashoka Chakra Emblem Background -->
       <div class="ashoka-chakra-wrapper" aria-hidden="true">
         <svg class="ashoka-chakra-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0, 0, 128, 0.35)" stroke-width="2"/>
           <circle cx="50" cy="50" r="8" fill="rgba(0, 0, 128, 0.4)"/>
           <g stroke="rgba(0, 0, 128, 0.35)" stroke-width="1">
-            <!-- 24 Spokes -->
             <line x1="50" y1="50" x2="50" y2="4"/><line x1="50" y1="50" x2="50" y2="96"/>
             <line x1="50" y1="50" x2="4" y2="50"/><line x1="50" y1="50" x2="96" y2="50"/>
             <line x1="50" y1="50" x2="17.5" y2="17.5"/><line x1="50" y1="50" x2="82.5" y2="82.5"/>
@@ -73,162 +79,150 @@
         </svg>
       </div>
 
-      <!-- Flag Wave Accent Ribbon -->
+      <!-- Tricolor Flag Ribbon Accent -->
       <div class="tricolor-ribbon" aria-hidden="true">
         <span class="ribbon-saffron"></span>
         <span class="ribbon-white"></span>
         <span class="ribbon-green"></span>
       </div>
 
-      <h1 class="hero-title">
-        🇮🇳 Happy 80th Independence Day, India! 🇮🇳
-      </h1>
-
-      <div class="hero-date-highlight">
-        <span>15 August 2026</span>
+      <!-- STAGE 1: Automatic Initial Independence Day Greeting Animation (Starts immediately on page load) -->
+      <div class="greeting-stage" id="openingGreetingStage">
+        <div class="date-pill">15 AUGUST 2026 — 80th INDEPENDENCE DAY 🇮🇳</div>
+        <h1 class="opening-greeting-title anim-zoom-in">
+          Happy 80th Independence Day! 🇮🇳
+        </h1>
+        <p class="opening-greeting-subtitle">
+          “Celebrating 80 Years of Freedom, Unity, Courage & Pride.”
+        </p>
       </div>
-      
-      <p class="hero-subtitle">
-        “Celebrating 80 Years of Freedom, Unity, Courage & Pride.”
-      </p>
 
-      <div class="patriotic-tagline">
-        15 August 2026 — Celebrating 80 Years of Freedom ✨
-      </div>
-    </section>
-
-    <!-- Interactive Name Personalization Section -->
-    <section class="personalization-section" id="formSection">
-      <div class="glass-card form-card">
-        <div class="card-header">
-          <div class="card-icon">🇮🇳</div>
-          <h2>Create Your Personalized Wish</h2>
-          <p>Enter your name to receive a personalized wish from Omprasad Bhaskar Padwalkar</p>
-        </div>
-
-        <form id="nameForm" class="name-form" onsubmit="return false;">
-          <div class="input-group">
-            <label for="userNameInput" class="sr-only">Enter Your Name</label>
-            <div class="input-wrapper">
-              <span class="input-icon">✨</span>
-              <input
-                type="text"
-                id="userNameInput"
-                placeholder="Enter Your Name"
-                maxlength="40"
-                autocomplete="off"
-                required
-              />
-              <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
-            </div>
+      <!-- STAGE 2: Name Personalization Input Form (Fades in smoothly after greeting animation) -->
+      <div class="name-stage hidden" id="nameInputStage">
+        <div class="glass-card form-card">
+          <div class="card-header">
+            <div class="card-icon">❤️</div>
+            <h2>Who would you like to wish? ❤️</h2>
+            <p>Enter your name below to generate your personalized wish card</p>
           </div>
 
-          <!-- Quick Sample Names Pills -->
-          <div class="quick-names">
-            <span class="quick-label">Try quick name:</span>
-            <button type="button" class="name-pill" data-name="Priya">Priya</button>
-            <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
-            <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
-            <button type="button" class="name-pill" data-name="Ananya">Ananya</button>
-          </div>
-
-          <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
-            <span class="btn-text">Generate My Wish 🇮🇳</span>
-            <span class="btn-glow"></span>
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- Shockwave BOOM Flash Overlay -->
-    <div id="boomFlashOverlay" class="boom-overlay hidden" aria-hidden="true"></div>
-
-    <!-- Personalized Wish Display Card Section -->
-    <section class="wish-display-section hidden" id="wishSection">
-      <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
-        
-        <!-- Card Tricolor Top Border Accent -->
-        <div class="card-tricolor-bar">
-          <span class="bar-saffron"></span>
-          <span class="bar-white"></span>
-          <span class="bar-green"></span>
-        </div>
-
-        <!-- Watermark Ashoka Chakra -->
-        <div class="card-watermark-chakra"></div>
-
-        <!-- Cinematic Title & Main Welcome Name Sequence -->
-        <div class="cinematic-header">
-          <div class="cinematic-step happy-step hidden" id="stepHappy">HAPPY 80th</div>
-          <div class="cinematic-step title-step hidden" id="stepTitle">INDEPENDENCE DAY 🇮🇳</div>
-          <div class="cinematic-step date-step hidden" id="stepDate">15 AUGUST 2026</div>
-
-          <!-- Main Welcome Name Reveal (Main Visual Focus) -->
-          <div class="main-welcome-name cinematic-step hidden" id="stepName">
-            Happy Independence Day, <span class="hero-name-highlight" id="nameText">Shreyash</span>! 🇮🇳❤️
-          </div>
-        </div>
-
-        <div class="wish-body">
-          <p class="wish-paragraph lead-wish cinematic-step hidden" id="stepWish1">
-            May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
-          </p>
-          <p class="wish-paragraph highlight-wish cinematic-step hidden" id="stepWish2">
-            Jai Hind! 🇮🇳❤️
-          </p>
-        </div>
-
-        <!-- Developer Signature Section -->
-        <div class="developer-signature-box cinematic-step hidden" id="stepSig">
-          <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
-          <p class="sig-note">With Love & Best Wishes ❤️</p>
-          
-          <div class="sig-developer-brand">
-            <div class="dev-avatar">
-              <span class="dev-code-icon">❤️</span>
-            </div>
-            <div class="dev-info">
-              <div class="dev-name-badge">
-                <span class="sig-dash">—</span>
-                <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+          <form id="nameForm" class="name-form" onsubmit="return false;">
+            <div class="input-group">
+              <label for="userNameInput" class="sr-only">Enter Your Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✨</span>
+                <input
+                  type="text"
+                  id="userNameInput"
+                  placeholder="Enter Your Name"
+                  maxlength="40"
+                  autocomplete="off"
+                  required
+                />
+                <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
               </div>
             </div>
+
+            <!-- Quick Sample Names Pills -->
+            <div class="quick-names">
+              <span class="quick-label">Try quick name:</span>
+              <button type="button" class="name-pill" data-name="Priya">Priya</button>
+              <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
+              <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
+              <button type="button" class="name-pill" data-name="Shreyash">Shreyash</button>
+            </div>
+
+            <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
+              <span class="btn-text">Generate My Wish 🇮🇳</span>
+              <span class="btn-glow"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- STAGE 3: ONE Single Personalized Wish Display Card -->
+      <div class="wish-stage hidden" id="wishCardStage">
+        <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
+          
+          <div class="card-tricolor-bar">
+            <span class="bar-saffron"></span>
+            <span class="bar-white"></span>
+            <span class="bar-green"></span>
           </div>
 
-          <button id="thankYouBtn" class="thank-you-action-btn" aria-label="Send Thank You to Omprasad">
-            <span>Say Thank You ❤️</span>
-          </button>
+          <div class="card-watermark-chakra"></div>
+
+          <div class="wish-card-header">
+            <h2 class="personalized-recipient-title" id="displayRecipientTitle">
+              Dear <span class="hero-name-highlight" id="nameText">Shreyash</span> ❤️
+            </h2>
+          </div>
+
+          <div class="wish-body">
+            <p class="wish-paragraph lead-wish">
+              Wishing you a very Happy 80th Independence Day! 🇮🇳
+            </p>
+            <p class="wish-paragraph">
+              May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
+            </p>
+            <p class="wish-paragraph highlight-wish">
+              Jai Hind! 🇮🇳❤️
+            </p>
+          </div>
+
+          <!-- Developer Signature Section -->
+          <div class="developer-signature-box">
+            <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
+            <p class="sig-note">With Love & Best Wishes ❤️</p>
+            
+            <div class="sig-developer-brand">
+              <div class="dev-avatar">
+                <span class="dev-code-icon">❤️</span>
+              </div>
+              <div class="dev-info">
+                <div class="dev-name-badge">
+                  <span class="sig-dash">—</span>
+                  <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+                </div>
+              </div>
+            </div>
+
+            <button id="thankYouBtn" class="thank-you-action-btn" aria-label="Send Thank You to Omprasad">
+              <span>Say Thank You ❤️</span>
+            </button>
+          </div>
+
         </div>
 
+        <!-- Action Button Controls -->
+        <div class="action-bar">
+          <button id="whatsappShareBtn" class="action-btn btn-whatsapp">
+            <span class="btn-icon">📱</span>
+            <span>Share on WhatsApp</span>
+          </button>
+
+          <button id="webShareBtn" class="action-btn btn-share">
+            <span class="btn-icon">🔗</span>
+            <span>Share My Wish</span>
+          </button>
+
+          <button id="copyWishBtn" class="action-btn btn-copy">
+            <span class="btn-icon">📋</span>
+            <span>Copy Wish</span>
+          </button>
+
+          <button id="downloadImageBtn" class="action-btn btn-download">
+            <span class="btn-icon">🖼️</span>
+            <span>Download Wish as Image</span>
+          </button>
+
+          <button id="resetWishBtn" class="action-btn btn-reset">
+            <span class="btn-icon">🔄</span>
+            <span>Wish Someone Else</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Action Button Controls -->
-      <div class="action-bar">
-        <button id="whatsappShareBtn" class="action-btn btn-whatsapp">
-          <span class="btn-icon">📱</span>
-          <span>Share on WhatsApp</span>
-        </button>
-
-        <button id="webShareBtn" class="action-btn btn-share">
-          <span class="btn-icon">🔗</span>
-          <span>Share My Wish</span>
-        </button>
-
-        <button id="copyWishBtn" class="action-btn btn-copy">
-          <span class="btn-icon">📋</span>
-          <span>Copy Wish</span>
-        </button>
-
-        <button id="downloadImageBtn" class="action-btn btn-download">
-          <span class="btn-icon">🖼️</span>
-          <span>Download Wish as Image</span>
-        </button>
-
-        <button id="resetWishBtn" class="action-btn btn-reset">
-          <span class="btn-icon">🔄</span>
-          <span>Wish Someone Else</span>
-        </button>
-      </div>
     </section>
 
     <!-- Freedom Fighters Quote Carousel Section -->
