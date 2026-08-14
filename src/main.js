@@ -439,46 +439,36 @@ function toggleAudio() {
   }
 }
 
-function startPatrioticAudio() {
-  if (!state.isPlayingAudio) return;
-
-  const candidateAudioPaths = [
-    '/music/vandemataram ringtone.mpeg',
-    '/music/vandemataram_ringtone.mpeg',
-    '/music/vandemataram ringtone.mp3',
-    '/music/vandemataram.mp3'
-  ];
-
+function getAudioDOMElement() {
   if (!bgAudioElement) {
-    bgAudioElement = new Audio();
+    bgAudioElement = document.getElementById('bgMusicPlayer');
+    if (!bgAudioElement) {
+      bgAudioElement = new Audio('/music/vandemataram%20ringtone.mpeg');
+    }
     bgAudioElement.loop = true;
     bgAudioElement.volume = 0.5;
     bgAudioElement.setAttribute('playsinline', 'true');
     bgAudioElement.setAttribute('webkit-playsinline', 'true');
   }
+  return bgAudioElement;
+}
 
-  let trackIdx = 0;
-  const tryNextTrack = () => {
-    if (trackIdx >= candidateAudioPaths.length) {
-      startSynthesizedVandeMataram();
-      return;
-    }
+function startPatrioticAudio() {
+  if (!state.isPlayingAudio) return;
 
-    bgAudioElement.src = candidateAudioPaths[trackIdx];
-    const playPromise = bgAudioElement.play();
+  const audioEl = getAudioDOMElement();
+  if (audioEl) {
+    const playPromise = audioEl.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
         updateAudioButtonUI(true);
       }).catch(() => {
-        // Fallback to synth if autoplay is blocked until touch gesture
         if (state.isPlayingAudio) {
           startSynthesizedVandeMataram();
         }
       });
     }
-  };
-
-  tryNextTrack();
+  }
 }
 
 function startSynthesizedVandeMataram() {
@@ -1193,15 +1183,21 @@ document.addEventListener('DOMContentLoaded', () => {
   startPatrioticAudio();
   const unlockAudio = () => {
     if (state.isPlayingAudio) {
-      startPatrioticAudio();
+      const audioEl = getAudioDOMElement();
+      if (audioEl && audioEl.paused) {
+        audioEl.play().then(() => {
+          updateAudioButtonUI(true);
+        }).catch(() => {});
+      }
+      if (state.audioContext && state.audioContext.state === 'suspended') {
+        state.audioContext.resume().catch(() => {});
+      }
     }
-    document.removeEventListener('click', unlockAudio);
-    document.removeEventListener('touchstart', unlockAudio);
-    document.removeEventListener('keydown', unlockAudio);
   };
-  document.addEventListener('click', unlockAudio);
-  document.addEventListener('touchstart', unlockAudio);
-  document.addEventListener('keydown', unlockAudio);
+
+  ['click', 'touchstart', 'touchend', 'pointerdown', 'scroll', 'keydown'].forEach(evt => {
+    window.addEventListener(evt, unlockAudio, { passive: true });
+  });
 
   // Auto-pause audio when user leaves tab / minimizes app, resume when returning
   document.addEventListener('visibilitychange', () => {
