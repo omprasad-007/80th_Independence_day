@@ -1184,10 +1184,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const unlockAudio = () => {
     if (state.isPlayingAudio) {
       const audioEl = getAudioDOMElement();
-      if (audioEl && audioEl.paused) {
-        audioEl.play().then(() => {
+      if (audioEl) {
+        audioEl.muted = false;
+        if (audioEl.paused) {
+          audioEl.play().then(() => {
+            updateAudioButtonUI(true);
+          }).catch(() => {});
+        } else {
           updateAudioButtonUI(true);
-        }).catch(() => {});
+        }
       }
       if (state.audioContext && state.audioContext.state === 'suspended') {
         state.audioContext.resume().catch(() => {});
