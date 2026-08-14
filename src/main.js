@@ -535,7 +535,7 @@ function runCinematicIntroSequence(cleanName) {
   // Reset all cinematic step elements
   const steps = [
     'stepHappy', 'stepTitle', 'stepDate', 'stepName',
-    'stepWish1', 'stepWish2', 'stepWish3', 'stepSig'
+    'stepWish1', 'stepWish2', 'stepSig'
   ];
   steps.forEach(id => {
     const el = document.getElementById(id);
@@ -591,16 +591,17 @@ function runCinematicIntroSequence(cleanName) {
     }
   }, 2200);
 
-  // 3.0s → ❤️ Dear [NAME] ❤️
+  // 3.0s → ❤️ MAIN NAME REVEAL (Happy Independence Day, [NAME]! 🇮🇳❤️)
   setTimeout(() => {
     const stepName = document.getElementById('stepName');
     if (stepName) {
       stepName.classList.remove('hidden');
       stepName.classList.add('anim-scale-up');
+      triggerTricolorConfetti();
     }
   }, 3000);
 
-  // 4.0s → 💌 Personalized Wish Line by Line
+  // 4.0s → 💌 Wish Content Paragraph
   setTimeout(() => {
     const stepWish1 = document.getElementById('stepWish1');
     if (stepWish1) {
@@ -609,22 +610,16 @@ function runCinematicIntroSequence(cleanName) {
     }
   }, 4000);
 
+  // 4.6s → Jai Hind! 🇮🇳❤️
   setTimeout(() => {
     const stepWish2 = document.getElementById('stepWish2');
     if (stepWish2) {
       stepWish2.classList.remove('hidden');
       stepWish2.classList.add('anim-fade-up');
     }
-  }, 4400);
+  }, 4600);
 
-  setTimeout(() => {
-    const stepWish3 = document.getElementById('stepWish3');
-    if (stepWish3) {
-      stepWish3.classList.remove('hidden');
-      stepWish3.classList.add('anim-fade-up');
-    }
-  }, 4800);
-
+  // 5.2s → Signature (With Love & Best Wishes ❤️ — Omprasad Bhaskar Padwalkar 🇮🇳)
   setTimeout(() => {
     const stepSig = document.getElementById('stepSig');
     if (stepSig) {
@@ -689,9 +684,7 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const recipientName = state.currentName || 'Friend';
-  return `Happy 80th Independence Day, ${recipientName}! 🇮🇳❤️
-
-Wishing you a very Happy 80th Independence Day! 🇮🇳
+  return `Happy Independence Day, ${recipientName}! 🇮🇳❤️
 
 May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
 
