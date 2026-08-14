@@ -823,32 +823,51 @@ function showToast(message, icon = '✨') {
 }
 
 // ==========================================
-// Automatic Opening Sequence (BOOM -> 1st Wish Greeting -> Name Section)
+// Automatic 5-Scene Cinematic Opening Sequence
 // ==========================================
 function startOpeningSequence() {
+  const cinematicOverlay = document.getElementById('cinematicStageOverlay');
+  const tricolorAura = document.getElementById('tricolorAura');
   const boomOverlay = document.getElementById('boomFlashOverlay');
-  const openingGreeting = document.getElementById('openingGreeting');
+  const permanentHeroHeader = document.getElementById('permanentHeroHeader');
   const nameSection = document.getElementById('nameSection');
 
-  // 1. BOOM Intro Effect on Load (0.0s)
-  if (boomOverlay) {
-    boomOverlay.classList.remove('hidden');
-    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
-  }
-  triggerTricolorConfetti();
-  playFireworkBurstSound();
-
-  // 2. Permanent Top Heading is active
-  if (openingGreeting) {
-    openingGreeting.classList.remove('hidden');
+  // Scene 1: Dark Beginning with rotating Ashoka Chakra (0.0s - 1.0s)
+  if (cinematicOverlay) {
+    cinematicOverlay.style.display = 'flex';
+    cinematicOverlay.style.opacity = '1';
   }
 
-  // 3. Reveal Name Input Slot below permanent heading at 1.8s
+  // Scene 2: Flowing Tricolor Light Atmosphere (1.0s - 2.0s)
+  setTimeout(() => {
+    if (tricolorAura) tricolorAura.style.opacity = '1';
+  }, 1000);
+
+  // Scene 3: BOOM Firework Impact (2.0s - 2.8s)
+  setTimeout(() => {
+    if (cinematicOverlay) {
+      cinematicOverlay.style.opacity = '0';
+      setTimeout(() => { cinematicOverlay.style.display = 'none'; }, 800);
+    }
+    if (boomOverlay) {
+      boomOverlay.classList.remove('hidden');
+      setTimeout(() => boomOverlay.classList.add('hidden'), 750);
+    }
+    triggerTricolorConfetti();
+    playFireworkBurstSound();
+
+    // Scene 4: Reveal Permanent Main Title (HAPPY 80th INDEPENDENCE DAY 🇮🇳)
+    if (permanentHeroHeader) {
+      permanentHeroHeader.classList.remove('hidden');
+    }
+  }, 2000);
+
+  // Scene 5: Reveal Name Section ("Who would you like to wish today? ❤️") at 3.8s
   setTimeout(() => {
     if (nameSection) {
       nameSection.classList.remove('hidden');
     }
-  }, 1800);
+  }, 3800);
 }
 
 // ==========================================

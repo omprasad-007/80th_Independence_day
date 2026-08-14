@@ -519,6 +519,122 @@ body {
   }
 }
 
+/* Scene 1 & 2 Cinematic Stage Overlay */
+.cinematic-stage-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #070B19;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  transition: opacity 0.8s ease-out;
+}
+
+.scene1-chakra {
+  width: 110px;
+  height: 110px;
+  animation: chakraPulseGlow 1.8s ease-in-out infinite alternate;
+}
+
+.rotating-chakra-svg {
+  width: 100%;
+  height: 100%;
+  animation: spinSlow 12s linear infinite;
+}
+
+@keyframes chakraPulseGlow {
+  0% {
+    transform: scale(0.85);
+    filter: drop-shadow(0 0 10px rgba(255, 153, 51, 0.4));
+  }
+  100% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 35px rgba(255, 153, 51, 0.95)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+  }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Scene 2: Flowing Tricolor Light Atmosphere */
+.tricolor-light-aura {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.light-saffron {
+  position: absolute;
+  top: -20%;
+  left: 10%;
+  right: 10%;
+  height: 45%;
+  background: radial-gradient(ellipse at top, rgba(255, 153, 51, 0.6), transparent 70%);
+  filter: blur(40px);
+}
+
+.light-white {
+  position: absolute;
+  top: 30%;
+  left: 15%;
+  right: 15%;
+  height: 35%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.45), transparent 65%);
+  filter: blur(45px);
+}
+
+.light-green {
+  position: absolute;
+  bottom: -20%;
+  left: 10%;
+  right: 10%;
+  height: 45%;
+  background: radial-gradient(ellipse at bottom, rgba(19, 136, 8, 0.55), transparent 70%);
+  filter: blur(40px);
+}
+
+/* Scene 4 Title Grouping */
+.cinematic-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.word-happy {
+  font-family: var(--font-title);
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--saffron-bright);
+  text-shadow: 0 0 20px rgba(255, 153, 51, 0.7);
+}
+
+.word-80th {
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.9), 0 0 45px rgba(255, 153, 51, 0.5);
+  line-height: 1;
+}
+
+.highlight-motto {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--saffron-bright);
+  font-size: 1.15rem;
+  margin-top: 0.5rem;
+}
+
 .opening-greeting-box {
   display: flex;
   flex-direction: column;

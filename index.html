@@ -48,11 +48,42 @@
 
   <main class="main-container">
 
+    <!-- Cinematic Opening Scenes Overlay (Scene 1: Dark Ashoka Chakra -> Scene 2: Flowing Tricolor Light) -->
+    <div id="cinematicStageOverlay" class="cinematic-stage-overlay" aria-hidden="true">
+      <div class="scene1-chakra" id="scene1Chakra">
+        <svg viewBox="0 0 100 100" class="rotating-chakra-svg">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255, 153, 51, 0.8)" stroke-width="2"/>
+          <circle cx="50" cy="50" r="8" fill="rgba(255, 255, 255, 0.9)"/>
+          <g stroke="rgba(255, 153, 51, 0.8)" stroke-width="1.2">
+            <line x1="50" y1="50" x2="50" y2="4"/><line x1="50" y1="50" x2="50" y2="96"/>
+            <line x1="50" y1="50" x2="4" y2="50"/><line x1="50" y1="50" x2="96" y2="50"/>
+            <line x1="50" y1="50" x2="17.5" y2="17.5"/><line x1="50" y1="50" x2="82.5" y2="82.5"/>
+            <line x1="50" y1="50" x2="82.5" y2="17.5"/><line x1="50" y1="50" x2="17.5" y2="82.5"/>
+            <line x1="50" y1="50" x2="27" y2="8"/><line x1="50" y1="50" x2="73" y2="92"/>
+            <line x1="50" y1="50" x2="73" y2="8"/><line x1="50" y1="50" x2="27" y2="92"/>
+            <line x1="50" y1="50" x2="8" y2="27"/><line x1="50" y1="50" x2="92" y2="73"/>
+            <line x1="50" y1="50" x2="92" y2="27"/><line x1="50" y1="50" x2="8" y2="73"/>
+            <line x1="50" y1="50" x2="38" y2="5"/><line x1="50" y1="50" x2="62" y2="95"/>
+            <line x1="50" y1="50" x2="62" y2="5"/><line x1="50" y1="50" x2="38" y2="95"/>
+            <line x1="50" y1="50" x2="5" y2="38"/><line x1="50" y1="50" x2="95" y2="62"/>
+            <line x1="50" y1="50" x2="95" y2="38"/><line x1="50" y1="50" x2="5" y2="62"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Scene 2: Flowing Tricolor Lights Ambient Glow -->
+      <div class="tricolor-light-aura" id="tricolorAura">
+        <div class="light-saffron"></div>
+        <div class="light-white"></div>
+        <div class="light-green"></div>
+      </div>
+    </div>
+
     <!-- Shockwave BOOM Flash Overlay -->
-    <div id="boomFlashOverlay" class="boom-overlay" aria-hidden="true"></div>
+    <div id="boomFlashOverlay" class="boom-overlay hidden" aria-hidden="true"></div>
 
     <!-- Permanent Top Heading (ALWAYS ABOVE NAME - NEVER MOVES OR DISAPPEARS) -->
-    <section class="hero-section" id="permanentHeroHeader">
+    <section class="hero-section hidden" id="permanentHeroHeader">
       <!-- Animated Ashoka Chakra Emblem Background -->
       <div class="ashoka-chakra-wrapper" aria-hidden="true">
         <svg class="ashoka-chakra-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -84,12 +115,16 @@
 
       <!-- Main Permanent Greeting Heading -->
       <div class="opening-greeting-box" id="openingGreeting">
-        <h1 class="hero-title anim-zoom-glow" id="heroGreetingTitle">
-          🇮🇳 Happy 80th Independence Day, India! 🇮🇳
-        </h1>
+        <div class="cinematic-title-group">
+          <span class="word-happy">HAPPY</span>
+          <span class="word-80th">80th</span>
+          <h1 class="hero-title anim-zoom-glow" id="heroGreetingTitle">
+            INDEPENDENCE DAY 🇮🇳
+          </h1>
+        </div>
 
         <div class="hero-date-highlight">
-          <span>15 August 2026</span>
+          <span>15 AUGUST 2026</span>
         </div>
         
         <p class="hero-subtitle">
@@ -110,19 +145,19 @@
         <div class="glass-card form-card">
           <div class="card-header">
             <div class="card-icon">❤️</div>
-            <h2>Who would you like to wish? ❤️</h2>
+            <h2>Who would you like to wish today? ❤️</h2>
             <p>Enter a name to generate your personalized wish</p>
           </div>
 
           <form id="nameForm" class="name-form" action="javascript:void(0);">
             <div class="input-group">
-              <label for="userNameInput" class="sr-only">Enter Your Name</label>
+              <label for="userNameInput" class="sr-only">Enter Their Name</label>
               <div class="input-wrapper">
                 <span class="input-icon">✨</span>
                 <input
                   type="text"
                   id="userNameInput"
-                  placeholder="Enter Your Name"
+                  placeholder="Enter Their Name"
                   maxlength="40"
                   autocomplete="off"
                   required
@@ -169,10 +204,25 @@
             </h2>
           </div>
 
-          <!-- Wish Body (No Duplicate Heading) -->
+          <!-- Wish Body (Long Emotional Message) -->
           <div class="wish-body">
-            <p class="wish-paragraph lead-paragraph">
-              May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
+            <p class="wish-paragraph">
+              On this special occasion of India's 80th Independence Day, I wish you and your family a day filled with happiness, pride, peace, and hope. 🇮🇳
+            </p>
+            <p class="wish-paragraph">
+              Today, we remember the countless brave souls who sacrificed their lives so that we could live freely and dream fearlessly. Their courage reminds us that freedom is not only a gift from the past, but also a responsibility for the future.
+            </p>
+            <p class="wish-paragraph">
+              May you always have the courage to follow your dreams, the strength to overcome every challenge, and the kindness to make a difference in the lives of others. May our beautiful nation continue to grow with unity, knowledge, technology, peace, and prosperity.
+            </p>
+            <p class="wish-paragraph">
+              May the colors of our Tiranga always remind us of courage, truth, peace, growth, and the responsibility we share as citizens of India. May your future be as bright as the spirit of our nation.
+            </p>
+            <p class="wish-paragraph">
+              On this 80th Independence Day, let us celebrate not only our freedom, but also the dreams of a stronger, brighter, and more united India. 🇮🇳
+            </p>
+            <p class="wish-paragraph highlight-motto">
+              Keep dreaming. Keep growing. Keep making India proud. ❤️
             </p>
             <p class="wish-paragraph highlight-wish">
               Jai Hind! 🇮🇳❤️
