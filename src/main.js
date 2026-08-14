@@ -732,21 +732,11 @@ function initQuotesCarousel() {
 // Interactive Pledge Wall
 // ==========================================
 function initPledgeWall() {
-  const pledgeCountEl = document.getElementById('pledgeCount');
   const pledgeOptions = document.getElementById('pledgeOptions');
   const activePledgeText = document.getElementById('activePledgeText');
   const takePledgeBtn = document.getElementById('takePledgeBtn');
 
   if (!pledgeOptions || !activePledgeText) return;
-
-  // Load count from localStorage
-  const savedCount = localStorage.getItem('india_pledge_count');
-  if (savedCount) {
-    state.pledgeCount = parseInt(savedCount, 10);
-  }
-  if (pledgeCountEl) {
-    pledgeCountEl.textContent = state.pledgeCount.toLocaleString('en-IN');
-  }
 
   pledgeOptions.addEventListener('click', (e) => {
     const btn = e.target.closest('.pledge-btn');
@@ -761,12 +751,6 @@ function initPledgeWall() {
 
   if (takePledgeBtn) {
     takePledgeBtn.addEventListener('click', () => {
-      state.pledgeCount++;
-      localStorage.setItem('india_pledge_count', state.pledgeCount);
-      if (pledgeCountEl) {
-        pledgeCountEl.textContent = state.pledgeCount.toLocaleString('en-IN');
-      }
-
       triggerTricolorConfetti();
       showToast('Thank you for taking a pledge for India! ✋🇮🇳', '🌟');
     });

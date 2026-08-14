@@ -906,18 +906,6 @@ body {
   gap: 1.5rem;
 }
 
-.pledge-counter {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--saffron-bright);
-  background: rgba(255, 153, 51, 0.1);
-  padding: 0.6rem 1.2rem;
-  border-radius: 999px;
-  display: inline-block;
-  align-self: center;
-  border: 1px solid rgba(255, 153, 51, 0.25);
-}
-
 .pledge-options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
