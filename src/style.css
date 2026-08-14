@@ -566,6 +566,34 @@ body {
   }
 }
 
+.interactive-slot-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 1.5rem auto 0 auto;
+  min-height: 280px;
+}
+
+.anim-name-appear {
+  animation: nameAppearInPlace 0.75s var(--ease-spring) forwards;
+}
+
+@keyframes nameAppearInPlace {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(12px);
+    filter: blur(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) translateY(-2px);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .fade-out-up {
   animation: fadeOutUp 0.5s var(--ease-smooth) forwards;
 }

@@ -51,8 +51,8 @@
     <!-- Shockwave BOOM Flash Overlay -->
     <div id="boomFlashOverlay" class="boom-overlay" aria-hidden="true"></div>
 
-    <!-- Main Welcome Stage (Opening Greeting + Name Input) -->
-    <section class="hero-section" id="welcomeStage">
+    <!-- Permanent Top Heading (ALWAYS ABOVE NAME - NEVER MOVES OR DISAPPEARS) -->
+    <section class="hero-section" id="permanentHeroHeader">
       <!-- Animated Ashoka Chakra Emblem Background -->
       <div class="ashoka-chakra-wrapper" aria-hidden="true">
         <svg class="ashoka-chakra-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -82,7 +82,7 @@
         <span class="ribbon-green"></span>
       </div>
 
-      <!-- 1st Greeting Banner (Animated on Website Open) -->
+      <!-- Main Permanent Greeting Heading -->
       <div class="opening-greeting-box" id="openingGreeting">
         <h1 class="hero-title anim-zoom-glow" id="heroGreetingTitle">
           🇮🇳 Happy 80th Independence Day, India! 🇮🇳
@@ -100,17 +100,21 @@
           15 August 2026 — Celebrating 80 Years of Freedom ✨
         </div>
       </div>
+    </section>
 
-      <!-- Name Section (Smooth Transition after 1st Greeting) -->
+    <!-- Fixed Position Interactive Name Slot -->
+    <div class="interactive-slot-container" id="interactiveSlot">
+
+      <!-- State 1: Name Input Form Section -->
       <div class="personalization-container hidden" id="nameSection">
         <div class="glass-card form-card">
           <div class="card-header">
             <div class="card-icon">❤️</div>
             <h2>Who would you like to wish? ❤️</h2>
-            <p>Enter a name to generate a personalized wish card by Omprasad Bhaskar Padwalkar</p>
+            <p>Enter a name to generate your personalized wish</p>
           </div>
 
-          <form id="nameForm" class="name-form" onsubmit="return false;">
+          <form id="nameForm" class="name-form" action="javascript:void(0);">
             <div class="input-group">
               <label for="userNameInput" class="sr-only">Enter Your Name</label>
               <div class="input-wrapper">
@@ -143,95 +147,88 @@
           </form>
         </div>
       </div>
-    </section>
 
-    <!-- Personalized Wish Display Card Section -->
-    <section class="wish-display-section hidden" id="wishSection">
-      <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
-        
-        <!-- Card Tricolor Top Border Accent -->
-        <div class="card-tricolor-bar">
-          <span class="bar-saffron"></span>
-          <span class="bar-white"></span>
-          <span class="bar-green"></span>
-        </div>
-
-        <!-- Watermark Ashoka Chakra -->
-        <div class="card-watermark-chakra"></div>
-
-        <!-- Cinematic Title Sequence Reveal -->
-        <div class="cinematic-header">
-          <div class="cinematic-step happy-step hidden" id="stepHappy">HAPPY 80th</div>
-          <div class="cinematic-step title-step hidden" id="stepTitle">INDEPENDENCE DAY 🇮🇳</div>
-          <div class="cinematic-step date-step hidden" id="stepDate">15 AUGUST 2026</div>
-        </div>
-
-        <div class="wish-header">
-          <h2 class="recipient-name cinematic-step hidden" id="stepName">
-            Dear <span class="name-highlight" id="nameText">Friend</span>, ❤️
-          </h2>
-        </div>
-
-        <div class="wish-body">
-          <p class="wish-paragraph lead-wish cinematic-step hidden" id="stepWish1">
-            Wishing you a very Happy 80th Independence Day! 🇮🇳
-          </p>
-          <p class="wish-paragraph cinematic-step hidden" id="stepWish2">
-            May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
-          </p>
-          <p class="wish-paragraph highlight-wish cinematic-step hidden" id="stepWish3">
-            Jai Hind! 🇮🇳❤️
-          </p>
-        </div>
-
-        <!-- Developer Signature Section -->
-        <div class="developer-signature-box cinematic-step hidden" id="stepSig">
-          <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
-          <p class="sig-note">With Love & Best Wishes ❤️</p>
+      <!-- State 2: Personalized Wish Display Card Section (No Duplicate Heading) -->
+      <div class="wish-display-section hidden" id="wishSection">
+        <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
           
-          <div class="sig-developer-brand">
-            <div class="dev-avatar">
-              <span class="dev-code-icon">❤️</span>
-            </div>
-            <div class="dev-info">
-              <div class="dev-name-badge">
-                <span class="sig-dash">—</span>
-                <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+          <!-- Card Tricolor Top Border Accent -->
+          <div class="card-tricolor-bar">
+            <span class="bar-saffron"></span>
+            <span class="bar-white"></span>
+            <span class="bar-green"></span>
+          </div>
+
+          <!-- Watermark Ashoka Chakra -->
+          <div class="card-watermark-chakra"></div>
+
+          <!-- Recipient Name Header (Fixed Position Directly Below Permanent Heading) -->
+          <div class="wish-header">
+            <h2 class="recipient-name anim-name-appear" id="displayRecipientName">
+              Dear <span class="name-highlight" id="nameText">Friend</span>, ❤️
+            </h2>
+          </div>
+
+          <!-- Wish Body (No Duplicate Heading) -->
+          <div class="wish-body">
+            <p class="wish-paragraph lead-paragraph">
+              May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
+            </p>
+            <p class="wish-paragraph highlight-wish">
+              Jai Hind! 🇮🇳❤️
+            </p>
+          </div>
+
+          <!-- Developer Signature Section -->
+          <div class="developer-signature-box">
+            <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
+            <p class="sig-note">With Love & Best Wishes ❤️</p>
+            
+            <div class="sig-developer-brand">
+              <div class="dev-avatar">
+                <span class="dev-code-icon">❤️</span>
+              </div>
+              <div class="dev-info">
+                <div class="dev-name-badge">
+                  <span class="sig-dash">—</span>
+                  <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
 
+        <!-- Action Button Controls -->
+        <div class="action-bar">
+          <button id="whatsappShareBtn" class="action-btn btn-whatsapp">
+            <span class="btn-icon">📱</span>
+            <span>Share on WhatsApp</span>
+          </button>
+
+          <button id="webShareBtn" class="action-btn btn-share">
+            <span class="btn-icon">🔗</span>
+            <span>Share My Wish</span>
+          </button>
+
+          <button id="copyWishBtn" class="action-btn btn-copy">
+            <span class="btn-icon">📋</span>
+            <span>Copy Wish</span>
+          </button>
+
+          <button id="downloadImageBtn" class="action-btn btn-download">
+            <span class="btn-icon">🖼️</span>
+            <span>Download Wish as Image</span>
+          </button>
+
+          <button id="resetWishBtn" class="action-btn btn-reset">
+            <span class="btn-icon">🔄</span>
+            <span>Wish Someone Else</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Action Button Controls -->
-      <div class="action-bar">
-        <button id="whatsappShareBtn" class="action-btn btn-whatsapp">
-          <span class="btn-icon">📱</span>
-          <span>Share on WhatsApp</span>
-        </button>
-
-        <button id="webShareBtn" class="action-btn btn-share">
-          <span class="btn-icon">🔗</span>
-          <span>Share My Wish</span>
-        </button>
-
-        <button id="copyWishBtn" class="action-btn btn-copy">
-          <span class="btn-icon">📋</span>
-          <span>Copy Wish</span>
-        </button>
-
-        <button id="downloadImageBtn" class="action-btn btn-download">
-          <span class="btn-icon">🖼️</span>
-          <span>Download Wish as Image</span>
-        </button>
-
-        <button id="resetWishBtn" class="action-btn btn-reset">
-          <span class="btn-icon">🔄</span>
-          <span>Wish Someone Else</span>
-        </button>
-      </div>
-    </section>
+    </div>
 
     <!-- Freedom Fighters Quote Carousel Section -->
     <section class="quotes-section">

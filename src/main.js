@@ -508,7 +508,7 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic (Cinematic Sequence)
+// Form & Wish Generation Logic (In-Place Slot Morphing)
 // ==========================================
 function generateWish(name) {
   if (!name || name.trim() === '') {
@@ -519,149 +519,37 @@ function generateWish(name) {
   const cleanName = name.trim();
   state.currentName = cleanName;
 
-  const welcomeStage = document.getElementById('welcomeStage');
+  const nameSection = document.getElementById('nameSection');
   const wishSection = document.getElementById('wishSection');
-
-  // Fade out welcome stage completely so NO DUPLICATE WISHES remain on screen
-  if (welcomeStage) {
-    welcomeStage.classList.add('fade-out-up');
-    setTimeout(() => {
-      welcomeStage.classList.add('hidden');
-      welcomeStage.classList.remove('fade-out-up');
-    }, 450);
-  }
-
-  if (wishSection) {
-    wishSection.classList.remove('hidden');
-    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  // Run Cinematic Personalization Sequence on the ONE wish card
-  runCinematicIntroSequence(cleanName);
-
-  // Update URL search parameter so sharing link contains the recipient's name
-  const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
-  window.history.replaceState({}, '', newUrl);
-}
-
-function runCinematicIntroSequence(cleanName) {
-  const wishSection = document.getElementById('wishSection');
-  const exportWishCard = document.getElementById('exportWishCard');
-  const boomOverlay = document.getElementById('boomFlashOverlay');
   const nameText = document.getElementById('nameText');
+  const displayRecipient = document.getElementById('displayRecipientName');
 
   if (nameText) nameText.textContent = cleanName;
 
-  // Reset all cinematic step elements
-  const steps = [
-    'stepHappy', 'stepTitle', 'stepDate', 'stepName',
-    'stepWish1', 'stepWish2', 'stepWish3', 'stepSig'
-  ];
-  steps.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.classList.add('hidden');
-      el.classList.remove('anim-scale-up', 'anim-fade-up');
-    }
-  });
-
-  if (exportWishCard) {
-    exportWishCard.classList.remove('final-celebration-aura');
-  }
-
-  // 0.0s → 🎆 BOOM INTRO
-  if (boomOverlay) {
-    boomOverlay.classList.remove('hidden');
-    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
-  }
-
-  triggerTricolorConfetti();
-  playFireworkBurstSound();
-
+  // In-place morphing: hide input section, reveal wish card directly below permanent header
+  if (nameSection) nameSection.classList.add('hidden');
   if (wishSection) {
     wishSection.classList.remove('hidden');
     wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // 0.7s → 🇮🇳 HAPPY 80th
-  setTimeout(() => {
-    const stepHappy = document.getElementById('stepHappy');
-    if (stepHappy) {
-      stepHappy.classList.remove('hidden');
-      stepHappy.classList.add('anim-scale-up');
-    }
-  }, 700);
+  // Trigger name animation in place
+  if (displayRecipient) {
+    displayRecipient.classList.remove('anim-name-appear');
+    void displayRecipient.offsetWidth; // Force reflow
+    displayRecipient.classList.add('anim-name-appear');
+  }
 
-  // 1.3s → INDEPENDENCE DAY 🇮🇳
-  setTimeout(() => {
-    const stepTitle = document.getElementById('stepTitle');
-    if (stepTitle) {
-      stepTitle.classList.remove('hidden');
-      stepTitle.classList.add('anim-scale-up');
-    }
-  }, 1300);
+  // Trigger celebration effects (Fireworks + Tricolor Confetti + Audio Pop)
+  if (typeof window.triggerFirecrackers === 'function') {
+    window.triggerFirecrackers();
+  }
+  triggerTricolorConfetti();
+  playFireworkBurstSound();
 
-  // 2.2s → 15 AUGUST 2026
-  setTimeout(() => {
-    const stepDate = document.getElementById('stepDate');
-    if (stepDate) {
-      stepDate.classList.remove('hidden');
-      stepDate.classList.add('anim-scale-up');
-    }
-  }, 2200);
-
-  // 3.0s → ❤️ Dear [NAME] ❤️
-  setTimeout(() => {
-    const stepName = document.getElementById('stepName');
-    if (stepName) {
-      stepName.classList.remove('hidden');
-      stepName.classList.add('anim-scale-up');
-    }
-  }, 3000);
-
-  // 4.0s → 💌 Personalized Wish Line by Line
-  setTimeout(() => {
-    const stepWish1 = document.getElementById('stepWish1');
-    if (stepWish1) {
-      stepWish1.classList.remove('hidden');
-      stepWish1.classList.add('anim-fade-up');
-    }
-  }, 4000);
-
-  setTimeout(() => {
-    const stepWish2 = document.getElementById('stepWish2');
-    if (stepWish2) {
-      stepWish2.classList.remove('hidden');
-      stepWish2.classList.add('anim-fade-up');
-    }
-  }, 4400);
-
-  setTimeout(() => {
-    const stepWish3 = document.getElementById('stepWish3');
-    if (stepWish3) {
-      stepWish3.classList.remove('hidden');
-      stepWish3.classList.add('anim-fade-up');
-    }
-  }, 4800);
-
-  setTimeout(() => {
-    const stepSig = document.getElementById('stepSig');
-    if (stepSig) {
-      stepSig.classList.remove('hidden');
-      stepSig.classList.add('anim-fade-up');
-    }
-  }, 5200);
-
-  // 6.0s → 🎆 FINAL CELEBRATION
-  setTimeout(() => {
-    if (typeof window.triggerFirecrackers === 'function') {
-      window.triggerFirecrackers();
-    }
-    triggerTricolorConfetti();
-    if (exportWishCard) {
-      exportWishCard.classList.add('final-celebration-aura');
-    }
-  }, 6000);
+  // Update URL search parameter for direct sharing capability
+  const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
+  window.history.replaceState({}, '', newUrl);
 }
 
 function triggerTricolorConfetti() {
@@ -707,9 +595,10 @@ function triggerTricolorConfetti() {
 // Sharing & Download Actions
 // ==========================================
 function getWishText() {
-  return `Dear ${state.currentName || 'Friend'}, ❤️
+  const name = state.currentName || 'Friend';
+  return `🇮🇳 Happy 80th Independence Day! 🇮🇳
 
-Wishing you a very Happy 80th Independence Day! 🇮🇳
+Dear ${name}, ❤️
 
 May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
 
@@ -762,6 +651,7 @@ function copyWishText() {
 
 async function downloadWishImage() {
   const cardElement = document.getElementById('exportWishCard');
+  const headerTitle = document.getElementById('heroGreetingTitle');
   if (!cardElement) return;
 
   showToast('Rendering your card image... 🎨', '⏳');
@@ -778,12 +668,15 @@ async function downloadWishImage() {
           clonedCard.style.transform = 'none';
           clonedCard.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.6)';
           
-          // Reveal all cinematic steps in exported image
-          clonedDoc.querySelectorAll('.cinematic-step').forEach(el => {
-            el.classList.remove('hidden');
-            el.style.opacity = '1';
-            el.style.transform = 'none';
-          });
+          if (headerTitle) {
+            const titleClone = clonedDoc.createElement('h1');
+            titleClone.className = 'hero-title';
+            titleClone.style.fontSize = '1.6rem';
+            titleClone.style.marginBottom = '1.2rem';
+            titleClone.style.textAlign = 'center';
+            titleClone.textContent = '🇮🇳 Happy 80th Independence Day! 🇮🇳';
+            clonedCard.insertBefore(titleClone, clonedCard.firstChild);
+          }
         }
       }
     });
@@ -803,19 +696,12 @@ async function downloadWishImage() {
 }
 
 function resetForm() {
-  const welcomeStage = document.getElementById('welcomeStage');
-  const wishSection = document.getElementById('wishSection');
-  const openingGreeting = document.getElementById('openingGreeting');
   const nameSection = document.getElementById('nameSection');
+  const wishSection = document.getElementById('wishSection');
   const nameInput = document.getElementById('userNameInput');
 
   if (wishSection) wishSection.classList.add('hidden');
-
-  if (welcomeStage) {
-    welcomeStage.classList.remove('hidden');
-    if (openingGreeting) openingGreeting.classList.add('hidden');
-    if (nameSection) nameSection.classList.remove('hidden');
-  }
+  if (nameSection) nameSection.classList.remove('hidden');
 
   if (nameInput) {
     nameInput.value = '';
@@ -943,14 +829,6 @@ function startOpeningSequence() {
   const boomOverlay = document.getElementById('boomFlashOverlay');
   const openingGreeting = document.getElementById('openingGreeting');
   const nameSection = document.getElementById('nameSection');
-  const welcomeStage = document.getElementById('welcomeStage');
-
-  // If direct URL name parameter exists, skip opening intro directly to personalized card
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('name') && urlParams.get('name').trim() !== '') {
-    if (welcomeStage) welcomeStage.classList.add('hidden');
-    return;
-  }
 
   // 1. BOOM Intro Effect on Load (0.0s)
   if (boomOverlay) {
@@ -960,17 +838,17 @@ function startOpeningSequence() {
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  // 2. First Wish Greeting Animation (0.2s - 2.2s)
+  // 2. Permanent Top Heading is active
   if (openingGreeting) {
     openingGreeting.classList.remove('hidden');
   }
 
-  // 3. Smooth transition to Name Section ("Who would you like to wish? ❤️") at 2.2s
+  // 3. Reveal Name Input Slot below permanent heading at 1.8s
   setTimeout(() => {
     if (nameSection) {
       nameSection.classList.remove('hidden');
     }
-  }, 2200);
+  }, 1800);
 }
 
 // ==========================================
