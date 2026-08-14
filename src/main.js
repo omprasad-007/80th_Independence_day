@@ -1029,16 +1029,16 @@ function checkUrlParams() {
 }
 
 // ==========================================
-// Performant Scroll Reveal System (IntersectionObserver)
+// Systematic Performant Scroll Reveal & Parallax System
 // ==========================================
 function initScrollReveal() {
-  const revealElements = document.querySelectorAll('.scroll-reveal');
+  const revealElements = document.querySelectorAll('.scroll-reveal, .scroll-slide-up, .scroll-slide-down, .scroll-slide-left, .scroll-slide-right, .scroll-rotate-in');
   if (!revealElements.length) return;
 
   const observerOptions = {
     root: null,
-    rootMargin: '0px 0px -40px 0px',
-    threshold: 0.12
+    rootMargin: '0px 0px -30px 0px',
+    threshold: 0.1
   };
 
   const observer = new IntersectionObserver((entries, obs) => {
@@ -1051,6 +1051,22 @@ function initScrollReveal() {
   }, observerOptions);
 
   revealElements.forEach(el => observer.observe(el));
+
+  // Parallax Scroll Depth Effect for Ambient Background Elements
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrolled = window.pageYOffset;
+        const chakras = document.querySelectorAll('.ashoka-chakra-svg');
+        chakras.forEach(chakra => {
+          if (chakra) chakra.style.transform = `rotate(${scrolled * 0.12}deg) translateY(${scrolled * 0.04}px)`;
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
 }
 
 // ==========================================

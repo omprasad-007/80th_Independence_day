@@ -315,13 +315,13 @@
 
     <!-- Freedom Fighters Quote Carousel Section -->
     <section class="quotes-section scroll-reveal">
-      <div class="section-title">
+      <div class="section-title scroll-slide-down">
         <h2>Tribute to Our Heroes 🕊️</h2>
         <p>Words that inspired a nation to rise</p>
       </div>
 
       <div class="quotes-carousel-wrapper">
-        <div class="quote-card glass-card" id="quoteDisplayCard">
+        <div class="quote-card glass-card scroll-slide-left" id="quoteDisplayCard">
           <div class="quote-icon">“</div>
           <p class="quote-text" id="quoteText">
             "Inquilab Zindabad!"
@@ -334,7 +334,7 @@
           </div>
         </div>
 
-        <div class="quote-controls">
+        <div class="quote-controls scroll-slide-right">
           <button id="prevQuoteBtn" class="carousel-nav-btn" aria-label="Previous quote">&larr;</button>
           <div class="quote-dots" id="quoteDots"></div>
           <button id="nextQuoteBtn" class="carousel-nav-btn" aria-label="Next quote">&rarr;</button>
@@ -344,32 +344,32 @@
 
     <!-- Interactive Patriotic Pledge Wall -->
     <section class="pledge-section scroll-reveal">
-      <div class="section-title">
+      <div class="section-title scroll-slide-down">
         <h2>My Pledge for India 🇮🇳</h2>
         <p>Choose or make your pledge to build a better future together</p>
       </div>
 
-      <div class="glass-card pledge-card">
-        <div class="pledge-options" id="pledgeOptions">
-          <button class="pledge-btn active" data-pledge="I pledge to contribute towards a greener, cleaner, and smarter India. 🌿">
+      <div class="glass-card pledge-card scroll-slide-up">
+        <div class="pledge-options scroll-stagger" id="pledgeOptions">
+          <button class="pledge-btn active scroll-stagger-item" data-pledge="I pledge to contribute towards a greener, cleaner, and smarter India. 🌿">
             🌿 Cleaner & Greener India
           </button>
-          <button class="pledge-btn" data-pledge="I pledge to promote unity, harmony, and respect for every fellow Indian. 🤝">
+          <button class="pledge-btn scroll-stagger-item" data-pledge="I pledge to promote unity, harmony, and respect for every fellow Indian. 🤝">
             🤝 Unity & Respect for All
           </button>
-          <button class="pledge-btn" data-pledge="I pledge to use my skills & code to innovate for India's growth. 💻">
+          <button class="pledge-btn scroll-stagger-item" data-pledge="I pledge to use my skills & code to innovate for India's growth. 💻">
             💻 Innovation & Code for India
           </button>
-          <button class="pledge-btn" data-pledge="I pledge to support local creators and empower young minds. 🇮🇳">
+          <button class="pledge-btn scroll-stagger-item" data-pledge="I pledge to support local creators and empower young minds. 🇮🇳">
             🇮🇳 Support Local & Empower Youth
           </button>
         </div>
 
-        <div class="pledge-display-box">
+        <div class="pledge-display-box scroll-slide-up">
           <p class="active-pledge-text" id="activePledgeText">
             "I pledge to contribute towards a greener, cleaner, and smarter India. 🌿"
           </p>
-          <button id="takePledgeBtn" class="btn btn-secondary">
+          <button id="takePledgeBtn" class="btn btn-secondary btn-sparkle">
             <span>Take This Pledge ✋</span>
           </button>
         </div>
