@@ -426,6 +426,16 @@ body {
   gap: 1.25rem;
 }
 
+.input-label {
+  display: block;
+  text-align: left;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--saffron-bright);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.5px;
+}
+
 .input-wrapper {
   position: relative;
   display: flex;

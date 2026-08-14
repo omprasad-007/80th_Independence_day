@@ -6,7 +6,8 @@ import emailjs from '@emailjs/browser';
 // Application State & Constants
 // ==========================================
 const state = {
-  currentName: '',
+  receiverName: 'Shreyash',
+  senderName: 'Omprasad Bhaskar Padwalkar',
   isPlayingAudio: true,
   audioContext: null,
   activeOscillators: [],
@@ -550,23 +551,32 @@ function startOpeningWelcomeSequence() {
   }, 3500);
 }
 
-function generateWish(name) {
-  if (!name || name.trim() === '') {
-    showToast('Please enter your name to generate your wish! 🇮🇳', '⚠️');
+function generateWish() {
+  const receiverInput = document.getElementById('receiverNameInput');
+  const senderInput = document.getElementById('senderNameInput');
+
+  const receiverName = receiverInput ? receiverInput.value.trim() : '';
+  const senderName = senderInput && senderInput.value.trim() !== '' ? senderInput.value.trim() : 'Omprasad Bhaskar Padwalkar';
+
+  if (!receiverName) {
+    showToast("Please enter the receiver's name to generate your wish! 🇮🇳", '⚠️');
     return;
   }
 
-  const cleanName = name.trim();
-  state.currentName = cleanName;
+  state.receiverName = receiverName;
+  state.senderName = senderName;
 
   const greetingStage = document.getElementById('openingGreetingStage');
   const nameInputStage = document.getElementById('nameInputStage');
   const wishCardStage = document.getElementById('wishCardStage');
-  const nameText = document.getElementById('nameText');
+  const receiverNameText = document.getElementById('receiverNameText');
+  const senderNameText = document.getElementById('senderNameText');
 
   if (greetingStage) greetingStage.classList.add('hidden');
   if (nameInputStage) nameInputStage.classList.add('hidden');
-  if (nameText) nameText.textContent = cleanName;
+  
+  if (receiverNameText) receiverNameText.textContent = receiverName;
+  if (senderNameText) senderNameText.textContent = senderName;
 
   if (wishCardStage) {
     wishCardStage.classList.remove('hidden');
@@ -623,15 +633,19 @@ function triggerTricolorConfetti() {
 // Sharing & Download Actions
 // ==========================================
 function getWishText() {
-  const recipientName = state.currentName || 'Friend';
-  return `Happy Independence Day, ${recipientName}! 🇮🇳❤️
+  const receiver = state.receiverName || 'Friend';
+  const sender = state.senderName || 'Omprasad Bhaskar Padwalkar';
+
+  return `Dear ${receiver}, ❤️
+
+Wishing you a very Happy 80th Independence Day! 🇮🇳
 
 May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
 
 Jai Hind! 🇮🇳❤️
 
 With Love & Best Wishes ❤️
-— Omprasad Bhaskar Padwalkar 🇮🇳
+— ${sender} 🇮🇳
 
 Celebrate & generate your personalized 80th Independence Day wish here:
 ${window.location.origin}${window.location.pathname}`;
@@ -693,20 +707,13 @@ async function downloadWishImage() {
         if (clonedCard) {
           clonedCard.style.transform = 'none';
           clonedCard.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.6)';
-          
-          // Reveal all cinematic steps in exported image
-          clonedDoc.querySelectorAll('.cinematic-step').forEach(el => {
-            el.classList.remove('hidden');
-            el.style.opacity = '1';
-            el.style.transform = 'none';
-          });
         }
       }
     });
 
     const link = document.createElement('a');
-    const safeName = (state.currentName || 'Friend').replace(/[^a-z0-9]/gi, '_');
-    link.download = `Independence_Day_Wish_${safeName}_Omprasad.png`;
+    const safeReceiver = (state.receiverName || 'Friend').replace(/[^a-z0-9]/gi, '_');
+    link.download = `Independence_Day_Wish_${safeReceiver}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
 
@@ -719,7 +726,8 @@ async function downloadWishImage() {
 }
 
 function sendThankYouEmail() {
-  const visitorName = state.currentName || 'A Patriotic Indian Citizen';
+  const senderName = state.senderName || 'A Patriotic Indian Citizen';
+  const receiverName = state.receiverName || 'Receiver';
 
   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_independence';
   const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_thank_you';
@@ -727,13 +735,13 @@ function sendThankYouEmail() {
 
   const templateParams = {
     to_email: 'omprasadpadwalkar07@gmail.com',
-    from_name: visitorName,
+    from_name: senderName,
     subject: '🇮🇳 Someone sent you a Thank You!',
-    message_body: `Someone named ${visitorName} clicked the Thank You button on your Independence Day website. ❤️🇮🇳\n\nMessage: Thank you, Omprasad! ❤️\n15 August 2026 — India's 80th Independence Day 🇮🇳`,
+    message_body: `Someone named ${senderName} clicked the Thank You button for ${receiverName} on your Independence Day website. ❤️🇮🇳\n\nMessage: Thank you! ❤️\n15 August 2026 — India's 80th Independence Day 🇮🇳`,
     date: '15 August 2026'
   };
 
-  showToast('Sending your love to Omprasad... ❤️', '💌');
+  showToast('Sending your love... ❤️', '💌');
 
   emailjs.send(serviceId, templateId, templateParams, publicKey)
     .then(() => {
@@ -750,14 +758,14 @@ function sendThankYouEmail() {
 function resetForm() {
   const nameInputStage = document.getElementById('nameInputStage');
   const wishCardStage = document.getElementById('wishCardStage');
-  const nameInput = document.getElementById('userNameInput');
+  const receiverInput = document.getElementById('receiverNameInput');
 
   if (wishCardStage) wishCardStage.classList.add('hidden');
   if (nameInputStage) nameInputStage.classList.remove('hidden');
 
-  if (nameInput) {
-    nameInput.value = '';
-    nameInput.focus();
+  if (receiverInput) {
+    receiverInput.value = '';
+    receiverInput.focus();
   }
 }
 
@@ -881,38 +889,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Form Submit
   const nameForm = document.getElementById('nameForm');
-  const nameInput = document.getElementById('userNameInput');
-  const clearInputBtn = document.getElementById('clearInputBtn');
+  const receiverInput = document.getElementById('receiverNameInput');
 
-  if (nameForm && nameInput) {
+  if (nameForm) {
     nameForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      generateWish(nameInput.value);
-    });
-
-    nameInput.addEventListener('input', () => {
-      if (clearInputBtn) {
-        clearInputBtn.classList.toggle('hidden', nameInput.value === '');
-      }
+      generateWish();
     });
   }
 
-  if (clearInputBtn && nameInput) {
-    clearInputBtn.addEventListener('click', () => {
-      nameInput.value = '';
-      clearInputBtn.classList.add('hidden');
-      nameInput.focus();
-    });
-  }
-
-  // Quick Name Pills
+  // Quick Name Pills (sets receiver's name)
   const quickPills = document.querySelectorAll('.name-pill');
   quickPills.forEach(pill => {
     pill.addEventListener('click', () => {
       const selectedName = pill.getAttribute('data-name');
-      if (nameInput) nameInput.value = selectedName;
-      if (clearInputBtn) clearInputBtn.classList.remove('hidden');
-      generateWish(selectedName);
+      if (receiverInput) receiverInput.value = selectedName;
+      generateWish();
     });
   });
 

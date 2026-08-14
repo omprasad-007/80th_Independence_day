@@ -107,29 +107,44 @@
           </div>
 
           <form id="nameForm" class="name-form" onsubmit="return false;">
+            <!-- Receiver Name Input -->
             <div class="input-group">
-              <label for="userNameInput" class="sr-only">Enter Your Name</label>
+              <label for="receiverNameInput" class="input-label">Wishing To (Receiver's Name):</label>
               <div class="input-wrapper">
-                <span class="input-icon">✨</span>
+                <span class="input-icon">👤</span>
                 <input
                   type="text"
-                  id="userNameInput"
-                  placeholder="Enter Your Name"
+                  id="receiverNameInput"
+                  placeholder="Receiver's Name (e.g. Shreyash)"
                   maxlength="40"
                   autocomplete="off"
                   required
                 />
-                <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
+              </div>
+            </div>
+
+            <!-- Sender Name Input -->
+            <div class="input-group">
+              <label for="senderNameInput" class="input-label">From (Sender's Name):</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✍️</span>
+                <input
+                  type="text"
+                  id="senderNameInput"
+                  placeholder="Your Name (e.g. Omprasad Bhaskar Padwalkar)"
+                  maxlength="40"
+                  autocomplete="off"
+                />
               </div>
             </div>
 
             <!-- Quick Sample Names Pills -->
             <div class="quick-names">
-              <span class="quick-label">Try quick name:</span>
+              <span class="quick-label">Quick sample:</span>
+              <button type="button" class="name-pill" data-name="Shreyash">Shreyash</button>
               <button type="button" class="name-pill" data-name="Priya">Priya</button>
               <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
               <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
-              <button type="button" class="name-pill" data-name="Shreyash">Shreyash</button>
             </div>
 
             <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
@@ -154,7 +169,7 @@
 
           <div class="wish-card-header">
             <h2 class="personalized-recipient-title" id="displayRecipientTitle">
-              Dear <span class="hero-name-highlight" id="nameText">Shreyash</span> ❤️
+              Dear <span class="hero-name-highlight" id="receiverNameText">Shreyash</span> ❤️
             </h2>
           </div>
 
@@ -170,7 +185,7 @@
             </p>
           </div>
 
-          <!-- Developer Signature Section -->
+          <!-- Developer / Sender Signature Section -->
           <div class="developer-signature-box">
             <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
             <p class="sig-note">With Love & Best Wishes ❤️</p>
@@ -182,12 +197,12 @@
               <div class="dev-info">
                 <div class="dev-name-badge">
                   <span class="sig-dash">—</span>
-                  <span class="dev-name">Omprasad Bhaskar Padwalkar 🇮🇳</span>
+                  <span class="dev-name" id="senderNameText">Omprasad Bhaskar Padwalkar 🇮🇳</span>
                 </div>
               </div>
             </div>
 
-            <button id="thankYouBtn" class="thank-you-action-btn" aria-label="Send Thank You to Omprasad">
+            <button id="thankYouBtn" class="thank-you-action-btn" aria-label="Send Thank You">
               <span>Say Thank You ❤️</span>
             </button>
           </div>
