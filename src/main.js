@@ -508,7 +508,7 @@ function stopPatrioticAudio() {
 }
 
 // ==========================================
-// Form & Wish Generation Logic (Cinematic Opening Sequence)
+// Form & Wish Generation Logic (Cinematic Sequence)
 // ==========================================
 function generateWish(name) {
   if (!name || name.trim() === '') {
@@ -519,7 +519,24 @@ function generateWish(name) {
   const cleanName = name.trim();
   state.currentName = cleanName;
 
-  // Run Cinematic Opening Animation Sequence
+  const welcomeStage = document.getElementById('welcomeStage');
+  const wishSection = document.getElementById('wishSection');
+
+  // Fade out welcome stage completely so NO DUPLICATE WISHES remain on screen
+  if (welcomeStage) {
+    welcomeStage.classList.add('fade-out-up');
+    setTimeout(() => {
+      welcomeStage.classList.add('hidden');
+      welcomeStage.classList.remove('fade-out-up');
+    }, 450);
+  }
+
+  if (wishSection) {
+    wishSection.classList.remove('hidden');
+    wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Run Cinematic Personalization Sequence on the ONE wish card
   runCinematicIntroSequence(cleanName);
 
   // Update URL search parameter so sharing link contains the recipient's name
@@ -528,7 +545,6 @@ function generateWish(name) {
 }
 
 function runCinematicIntroSequence(cleanName) {
-  const formSection = document.getElementById('formSection');
   const wishSection = document.getElementById('wishSection');
   const exportWishCard = document.getElementById('exportWishCard');
   const boomOverlay = document.getElementById('boomFlashOverlay');
@@ -562,8 +578,7 @@ function runCinematicIntroSequence(cleanName) {
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  if (formSection && wishSection) {
-    formSection.classList.add('hidden');
+  if (wishSection) {
     wishSection.classList.remove('hidden');
     wishSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -788,13 +803,18 @@ async function downloadWishImage() {
 }
 
 function resetForm() {
-  const formSection = document.getElementById('formSection');
+  const welcomeStage = document.getElementById('welcomeStage');
   const wishSection = document.getElementById('wishSection');
+  const openingGreeting = document.getElementById('openingGreeting');
+  const nameSection = document.getElementById('nameSection');
   const nameInput = document.getElementById('userNameInput');
 
-  if (formSection && wishSection) {
-    wishSection.classList.add('hidden');
-    formSection.classList.remove('hidden');
+  if (wishSection) wishSection.classList.add('hidden');
+
+  if (welcomeStage) {
+    welcomeStage.classList.remove('hidden');
+    if (openingGreeting) openingGreeting.classList.add('hidden');
+    if (nameSection) nameSection.classList.remove('hidden');
   }
 
   if (nameInput) {
@@ -917,6 +937,43 @@ function showToast(message, icon = '✨') {
 }
 
 // ==========================================
+// Automatic Opening Sequence (BOOM -> 1st Wish Greeting -> Name Section)
+// ==========================================
+function startOpeningSequence() {
+  const boomOverlay = document.getElementById('boomFlashOverlay');
+  const openingGreeting = document.getElementById('openingGreeting');
+  const nameSection = document.getElementById('nameSection');
+  const welcomeStage = document.getElementById('welcomeStage');
+
+  // If direct URL name parameter exists, skip opening intro directly to personalized card
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('name') && urlParams.get('name').trim() !== '') {
+    if (welcomeStage) welcomeStage.classList.add('hidden');
+    return;
+  }
+
+  // 1. BOOM Intro Effect on Load (0.0s)
+  if (boomOverlay) {
+    boomOverlay.classList.remove('hidden');
+    setTimeout(() => boomOverlay.classList.add('hidden'), 750);
+  }
+  triggerTricolorConfetti();
+  playFireworkBurstSound();
+
+  // 2. First Wish Greeting Animation (0.2s - 2.2s)
+  if (openingGreeting) {
+    openingGreeting.classList.remove('hidden');
+  }
+
+  // 3. Smooth transition to Name Section ("Who would you like to wish? ❤️") at 2.2s
+  setTimeout(() => {
+    if (nameSection) {
+      nameSection.classList.remove('hidden');
+    }
+  }, 2200);
+}
+
+// ==========================================
 // Check URL Parameters on Load
 // ==========================================
 function checkUrlParams() {
@@ -937,6 +994,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initParticleCanvas();
   initQuotesCarousel();
   initPledgeWall();
+
+  // Start automatic opening sequence immediately on website opening
+  startOpeningSequence();
 
   // Form Submit
   const nameForm = document.getElementById('nameForm');

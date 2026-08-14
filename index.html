@@ -48,15 +48,17 @@
 
   <main class="main-container">
 
-    <!-- Hero Section -->
-    <section class="hero-section">
+    <!-- Shockwave BOOM Flash Overlay -->
+    <div id="boomFlashOverlay" class="boom-overlay" aria-hidden="true"></div>
+
+    <!-- Main Welcome Stage (Opening Greeting + Name Input) -->
+    <section class="hero-section" id="welcomeStage">
       <!-- Animated Ashoka Chakra Emblem Background -->
       <div class="ashoka-chakra-wrapper" aria-hidden="true">
         <svg class="ashoka-chakra-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0, 0, 128, 0.35)" stroke-width="2"/>
           <circle cx="50" cy="50" r="8" fill="rgba(0, 0, 128, 0.4)"/>
           <g stroke="rgba(0, 0, 128, 0.35)" stroke-width="1">
-            <!-- 24 Spokes -->
             <line x1="50" y1="50" x2="50" y2="4"/><line x1="50" y1="50" x2="50" y2="96"/>
             <line x1="50" y1="50" x2="4" y2="50"/><line x1="50" y1="50" x2="96" y2="50"/>
             <line x1="50" y1="50" x2="17.5" y2="17.5"/><line x1="50" y1="50" x2="82.5" y2="82.5"/>
@@ -80,68 +82,68 @@
         <span class="ribbon-green"></span>
       </div>
 
-      <h1 class="hero-title">
-        🇮🇳 Happy 80th Independence Day, India! 🇮🇳
-      </h1>
+      <!-- 1st Greeting Banner (Animated on Website Open) -->
+      <div class="opening-greeting-box" id="openingGreeting">
+        <h1 class="hero-title anim-zoom-glow" id="heroGreetingTitle">
+          🇮🇳 Happy 80th Independence Day, India! 🇮🇳
+        </h1>
 
-      <div class="hero-date-highlight">
-        <span>15 August 2026</span>
-      </div>
-      
-      <p class="hero-subtitle">
-        “Celebrating 80 Years of Freedom, Unity, Courage & Pride.”
-      </p>
-
-      <div class="patriotic-tagline">
-        15 August 2026 — Celebrating 80 Years of Freedom ✨
-      </div>
-    </section>
-
-    <!-- Interactive Name Personalization Section -->
-    <section class="personalization-section" id="formSection">
-      <div class="glass-card form-card">
-        <div class="card-header">
-          <div class="card-icon">🇮🇳</div>
-          <h2>Create Your Personalized Wish</h2>
-          <p>Enter your name to receive a personalized wish from Omprasad Bhaskar Padwalkar</p>
+        <div class="hero-date-highlight">
+          <span>15 August 2026</span>
         </div>
+        
+        <p class="hero-subtitle">
+          “Celebrating 80 Years of Freedom, Unity, Courage & Pride.”
+        </p>
 
-        <form id="nameForm" class="name-form" onsubmit="return false;">
-          <div class="input-group">
-            <label for="userNameInput" class="sr-only">Enter Your Name</label>
-            <div class="input-wrapper">
-              <span class="input-icon">✨</span>
-              <input
-                type="text"
-                id="userNameInput"
-                placeholder="Enter Your Name"
-                maxlength="40"
-                autocomplete="off"
-                required
-              />
-              <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
+        <div class="patriotic-tagline">
+          15 August 2026 — Celebrating 80 Years of Freedom ✨
+        </div>
+      </div>
+
+      <!-- Name Section (Smooth Transition after 1st Greeting) -->
+      <div class="personalization-container hidden" id="nameSection">
+        <div class="glass-card form-card">
+          <div class="card-header">
+            <div class="card-icon">❤️</div>
+            <h2>Who would you like to wish? ❤️</h2>
+            <p>Enter a name to generate a personalized wish card by Omprasad Bhaskar Padwalkar</p>
+          </div>
+
+          <form id="nameForm" class="name-form" onsubmit="return false;">
+            <div class="input-group">
+              <label for="userNameInput" class="sr-only">Enter Your Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✨</span>
+                <input
+                  type="text"
+                  id="userNameInput"
+                  placeholder="Enter Your Name"
+                  maxlength="40"
+                  autocomplete="off"
+                  required
+                />
+                <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
+              </div>
             </div>
-          </div>
 
-          <!-- Quick Sample Names Pills -->
-          <div class="quick-names">
-            <span class="quick-label">Try quick name:</span>
-            <button type="button" class="name-pill" data-name="Priya">Priya</button>
-            <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
-            <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
-            <button type="button" class="name-pill" data-name="Ananya">Ananya</button>
-          </div>
+            <!-- Quick Sample Names Pills -->
+            <div class="quick-names">
+              <span class="quick-label">Try quick name:</span>
+              <button type="button" class="name-pill" data-name="Priya">Priya</button>
+              <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
+              <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
+              <button type="button" class="name-pill" data-name="Ananya">Ananya</button>
+            </div>
 
-          <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
-            <span class="btn-text">Generate My Wish 🇮🇳</span>
-            <span class="btn-glow"></span>
-          </button>
-        </form>
+            <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
+              <span class="btn-text">Generate My Wish 🇮🇳</span>
+              <span class="btn-glow"></span>
+            </button>
+          </form>
+        </div>
       </div>
     </section>
-
-    <!-- Shockwave BOOM Flash Overlay -->
-    <div id="boomFlashOverlay" class="boom-overlay hidden" aria-hidden="true"></div>
 
     <!-- Personalized Wish Display Card Section -->
     <section class="wish-display-section hidden" id="wishSection">

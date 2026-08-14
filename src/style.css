@@ -519,6 +519,68 @@ body {
   }
 }
 
+.opening-greeting-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.6s var(--ease-smooth);
+}
+
+.anim-zoom-glow {
+  animation: zoomGlowGreeting 1.2s var(--ease-spring) forwards;
+}
+
+@keyframes zoomGlowGreeting {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(20px);
+    filter: blur(10px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.personalization-container {
+  width: 100%;
+  max-width: 580px;
+  margin: 1.5rem auto 0 auto;
+  animation: fadeInContainer 0.8s var(--ease-spring) forwards;
+}
+
+@keyframes fadeInContainer {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fade-out-up {
+  animation: fadeOutUp 0.5s var(--ease-smooth) forwards;
+}
+
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+}
+
 /* Cinematic Step Sequence Elements */
 .cinematic-header {
   display: flex;
