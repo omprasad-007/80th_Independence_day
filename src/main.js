@@ -1,5 +1,6 @@
 import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 // ==========================================
 // Application State & Constants
@@ -778,6 +779,35 @@ async function downloadWishImage() {
   }
 }
 
+function sendThankYouEmail() {
+  const visitorName = state.currentName || 'A Patriotic Indian Citizen';
+
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_independence';
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_thank_you';
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_key_demo';
+
+  const templateParams = {
+    to_email: 'omprasadpadwalkar07@gmail.com',
+    from_name: visitorName,
+    subject: '🇮🇳 Someone sent you a Thank You!',
+    message_body: `Someone named ${visitorName} clicked the Thank You button on your Independence Day website. ❤️🇮🇳\n\nMessage: Thank you, Omprasad! ❤️\n15 August 2026 — India's 80th Independence Day 🇮🇳`,
+    date: '15 August 2026'
+  };
+
+  showToast('Sending your love to Omprasad... ❤️', '💌');
+
+  emailjs.send(serviceId, templateId, templateParams, publicKey)
+    .then(() => {
+      showToast('Thank you for your love! ❤️🇮🇳', '❤️');
+      triggerTricolorConfetti();
+    })
+    .catch((err) => {
+      console.warn('EmailJS notification notice:', err);
+      showToast('Thank you for your love! ❤️🇮🇳', '❤️');
+      triggerTricolorConfetti();
+    });
+}
+
 function resetForm() {
   const formSection = document.getElementById('formSection');
   const wishSection = document.getElementById('wishSection');
@@ -967,6 +997,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const resetWishBtn = document.getElementById('resetWishBtn');
   if (resetWishBtn) resetWishBtn.addEventListener('click', resetForm);
+
+  const thankYouBtn = document.getElementById('thankYouBtn');
+  if (thankYouBtn) thankYouBtn.addEventListener('click', sendThankYouEmail);
 
   // Auto-start music on page load & unlock on first interaction
   startPatrioticAudio();

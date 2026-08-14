@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "canvas-confetti": "^1.9.4",
     "html2canvas": "^1.4.1",
     "lucide": "^0.475.0"
