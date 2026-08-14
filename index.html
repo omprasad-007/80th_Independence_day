@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Independence Day 2026 🇮🇳 | Personalized Wishes by Omprasad</title>
+  <meta name="description" content="Celebrate India's 80th Independence Day (15 August 2026) with a personalized patriotic greeting created with love and code by Omprasad, Developer & Creator." />
+  <meta name="theme-color" content="#0F172A" />
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Happy Independence Day 2026 🇮🇳 | Created by Omprasad" />
+  <meta property="og:description" content="Generate and share your personalized 80th Independence Day wish with friends and family!" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Fira+Code:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- Interactive Canvas Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Ambient Audio Equalizer Bar & Control Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="date-badge">
+        <span class="flag-dot orange"></span>
+        <span class="flag-dot white"></span>
+        <span class="flag-dot green"></span>
+        <span class="badge-text">15 August 2026 — India's 80th Independence Day 🇮🇳</span>
+      </div>
+
+      <button id="audioToggle" class="audio-btn" aria-label="Toggle Patriotic Ambient Music">
+        <div class="equalizer-icon" id="equalizerVisualizer">
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+        </div>
+        <span id="audioLabel">Music: OFF</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <!-- Animated Ashoka Chakra Emblem Background -->
+      <div class="ashoka-chakra-wrapper" aria-hidden="true">
+        <svg class="ashoka-chakra-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0, 0, 128, 0.35)" stroke-width="2"/>
+          <circle cx="50" cy="50" r="8" fill="rgba(0, 0, 128, 0.4)"/>
+          <g stroke="rgba(0, 0, 128, 0.35)" stroke-width="1">
+            <!-- 24 Spokes -->
+            <line x1="50" y1="50" x2="50" y2="4"/><line x1="50" y1="50" x2="50" y2="96"/>
+            <line x1="50" y1="50" x2="4" y2="50"/><line x1="50" y1="50" x2="96" y2="50"/>
+            <line x1="50" y1="50" x2="17.5" y2="17.5"/><line x1="50" y1="50" x2="82.5" y2="82.5"/>
+            <line x1="50" y1="50" x2="82.5" y2="17.5"/><line x1="50" y1="50" x2="17.5" y2="82.5"/>
+            <line x1="50" y1="50" x2="27" y2="8"/><line x1="50" y1="50" x2="73" y2="92"/>
+            <line x1="50" y1="50" x2="73" y2="8"/><line x1="50" y1="50" x2="27" y2="92"/>
+            <line x1="50" y1="50" x2="8" y2="27"/><line x1="50" y1="50" x2="92" y2="73"/>
+            <line x1="50" y1="50" x2="92" y2="27"/><line x1="50" y1="50" x2="8" y2="73"/>
+            <line x1="50" y1="50" x2="38" y2="5"/><line x1="50" y1="50" x2="62" y2="95"/>
+            <line x1="50" y1="50" x2="62" y2="5"/><line x1="50" y1="50" x2="38" y2="95"/>
+            <line x1="50" y1="50" x2="5" y2="38"/><line x1="50" y1="50" x2="95" y2="62"/>
+            <line x1="50" y1="50" x2="95" y2="38"/><line x1="50" y1="50" x2="5" y2="62"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Flag Wave Accent Ribbon -->
+      <div class="tricolor-ribbon" aria-hidden="true">
+        <span class="ribbon-saffron"></span>
+        <span class="ribbon-white"></span>
+        <span class="ribbon-green"></span>
+      </div>
+
+      <h1 class="hero-title">
+        🇮🇳 Happy 80th Independence Day, India! 🇮🇳
+      </h1>
+
+      <div class="hero-date-highlight">
+        <span>15 August 2026</span>
+      </div>
+      
+      <p class="hero-subtitle">
+        “Celebrating 80 Years of Freedom, Unity, Courage & Pride.”
+      </p>
+
+      <div class="patriotic-tagline">
+        15 August 2026 — Celebrating 80 Years of Freedom ✨
+      </div>
+    </section>
+
+    <!-- Interactive Name Personalization Section -->
+    <section class="personalization-section" id="formSection">
+      <div class="glass-card form-card">
+        <div class="card-header">
+          <div class="card-icon">🇮🇳</div>
+          <h2>Create Your Personalized Wish</h2>
+          <p>Enter your name to receive a personalized wish from Omprasad Bhaskar Padwalkar</p>
+        </div>
+
+        <form id="nameForm" class="name-form" onsubmit="return false;">
+          <div class="input-group">
+            <label for="userNameInput" class="sr-only">Enter Your Name</label>
+            <div class="input-wrapper">
+              <span class="input-icon">✨</span>
+              <input
+                type="text"
+                id="userNameInput"
+                placeholder="Enter Your Name"
+                maxlength="40"
+                autocomplete="off"
+                required
+              />
+              <button type="button" id="clearInputBtn" class="clear-btn hidden" title="Clear name">&times;</button>
+            </div>
+          </div>
+
+          <!-- Quick Sample Names Pills -->
+          <div class="quick-names">
+            <span class="quick-label">Try quick name:</span>
+            <button type="button" class="name-pill" data-name="Priya">Priya</button>
+            <button type="button" class="name-pill" data-name="Aarav">Aarav</button>
+            <button type="button" class="name-pill" data-name="Rahul">Rahul</button>
+            <button type="button" class="name-pill" data-name="Ananya">Ananya</button>
+          </div>
+
+          <button type="submit" id="generateBtn" class="btn btn-primary btn-sparkle">
+            <span class="btn-text">Generate My Wish 🇮🇳</span>
+            <span class="btn-glow"></span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Personalized Wish Display Card Section -->
+    <section class="wish-display-section hidden" id="wishSection">
+      <div class="glass-card wish-card 3d-tilt-card" id="exportWishCard">
+        
+        <!-- Card Tricolor Top Border Accent -->
+        <div class="card-tricolor-bar">
+          <span class="bar-saffron"></span>
+          <span class="bar-white"></span>
+          <span class="bar-green"></span>
+        </div>
+
+        <!-- Watermark Ashoka Chakra -->
+        <div class="card-watermark-chakra"></div>
+
+        <div class="wish-header">
+          <div class="greeting-badge">🇮🇳 15 August 2026 — 80th Independence Day</div>
+          <h2 class="recipient-name" id="displayRecipientName">
+            Dear <span class="name-highlight" id="nameText">Friend</span>, ❤️
+          </h2>
+        </div>
+
+        <div class="wish-body">
+          <p class="wish-paragraph lead-wish">
+            Wishing you a very Happy 80th Independence Day! 🇮🇳
+          </p>
+          <p class="wish-paragraph">
+            May the spirit of freedom, unity, courage, and hope always remain in your heart. May your dreams fly as high as our Tiranga, and may we continue to build a stronger, brighter, and better India together.
+          </p>
+          <p class="wish-paragraph highlight-wish">
+            Jai Hind! 🇮🇳❤️
+          </p>
+        </div>
+
+        <!-- Developer Signature Section -->
+        <div class="developer-signature-box">
+          <div class="sig-hearts">❤️ 🇮🇳 ❤️</div>
+          <p class="sig-note">With Love & Best Wishes ❤️</p>
+          
+          <div class="sig-developer-brand">
+            <div class="dev-avatar">
+              <span class="dev-code-icon">&lt;/&gt;</span>
+            </div>
+            <div class="dev-info">
+              <div class="dev-name-badge">
+                <span class="sig-dash">—</span>
+                <span class="dev-name">Omprasad Bhaskar Padwalkar</span>
+              </div>
+              <span class="dev-role">Developer & Creator 🇮🇳</span>
+            </div>
+          </div>
+
+          <!-- Code Badge Signature Animation -->
+          <div class="code-signature-tag">
+            <code id="typingCodeSignature">&lt;CreatedWithLoveBy name="Omprasad Bhaskar Padwalkar" year="2026" /&gt;</code>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Button Controls -->
+      <div class="action-bar">
+        <button id="whatsappShareBtn" class="action-btn btn-whatsapp">
+          <span class="btn-icon">📱</span>
+          <span>Share on WhatsApp</span>
+        </button>
+
+        <button id="webShareBtn" class="action-btn btn-share">
+          <span class="btn-icon">🔗</span>
+          <span>Share My Wish</span>
+        </button>
+
+        <button id="copyWishBtn" class="action-btn btn-copy">
+          <span class="btn-icon">📋</span>
+          <span>Copy Wish</span>
+        </button>
+
+        <button id="downloadImageBtn" class="action-btn btn-download">
+          <span class="btn-icon">🖼️</span>
+          <span>Download Wish as Image</span>
+        </button>
+
+        <button id="resetWishBtn" class="action-btn btn-reset">
+          <span class="btn-icon">🔄</span>
+          <span>Wish Someone Else</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Freedom Fighters Quote Carousel Section -->
+    <section class="quotes-section">
+      <div class="section-title">
+        <h2>Tribute to Our Heroes 🕊️</h2>
+        <p>Words that inspired a nation to rise</p>
+      </div>
+
+      <div class="quotes-carousel-wrapper">
+        <div class="quote-card glass-card" id="quoteDisplayCard">
+          <div class="quote-icon">“</div>
+          <p class="quote-text" id="quoteText">
+            "Inquilab Zindabad!"
+          </p>
+          <div class="quote-author" id="quoteAuthor">
+            — Bhagat Singh
+          </div>
+          <div class="quote-role" id="quoteRole">
+            Freedom Fighter & Revolutionary Legend
+          </div>
+        </div>
+
+        <div class="quote-controls">
+          <button id="prevQuoteBtn" class="carousel-nav-btn" aria-label="Previous quote">&larr;</button>
+          <div class="quote-dots" id="quoteDots"></div>
+          <button id="nextQuoteBtn" class="carousel-nav-btn" aria-label="Next quote">&rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Patriotic Pledge Wall -->
+    <section class="pledge-section">
+      <div class="section-title">
+        <h2>My Pledge for India 🇮🇳</h2>
+        <p>Choose or make your pledge to build a better future together</p>
+      </div>
+
+      <div class="glass-card pledge-card">
+        <div class="pledge-counter">
+          <span id="pledgeCount">1,947</span> Citizens Have Pledged Today! 🌟
+        </div>
+
+        <div class="pledge-options" id="pledgeOptions">
+          <button class="pledge-btn active" data-pledge="I pledge to contribute towards a greener, cleaner, and smarter India. 🌿">
+            🌿 Cleaner & Greener India
+          </button>
+          <button class="pledge-btn" data-pledge="I pledge to promote unity, harmony, and respect for every fellow Indian. 🤝">
+            🤝 Unity & Respect for All
+          </button>
+          <button class="pledge-btn" data-pledge="I pledge to use my skills & code to innovate for India's growth. 💻">
+            💻 Innovation & Code for India
+          </button>
+          <button class="pledge-btn" data-pledge="I pledge to support local creators and empower young minds. 🇮🇳">
+            🇮🇳 Support Local & Empower Youth
+          </button>
+        </div>
+
+        <div class="pledge-display-box">
+          <p class="active-pledge-text" id="activePledgeText">
+            "I pledge to contribute towards a greener, cleaner, and smarter India. 🌿"
+          </p>
+          <button id="takePledgeBtn" class="btn btn-secondary">
+            <span>Take This Pledge ✋</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-tricolor">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="footer-subtext font-bold">
+        15 August 2026 🇮🇳 | India's 80th Independence Day
+      </p>
+      <p class="footer-main-text">
+        With Love & Best Wishes — <strong>Omprasad Bhaskar Padwalkar</strong> ❤️🇮🇳
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification System -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite">
+    <span id="toastIcon">✨</span>
+    <span id="toastMessage">Copied to clipboard!</span>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
