@@ -315,59 +315,70 @@ function initParticleCanvas() {
 // ==========================================
 let bgAudioElement = null;
 
-function toggleAudio() {
+function updateAudioButtonUI(isPlaying) {
   const audioBtn = document.getElementById('audioToggle');
   const audioLabel = document.getElementById('audioLabel');
 
+  if (audioBtn) {
+    if (isPlaying) {
+      audioBtn.classList.add('playing');
+      if (audioLabel) audioLabel.textContent = '🎵 Vande Mataram: ON';
+    } else {
+      audioBtn.classList.remove('playing');
+      if (audioLabel) audioLabel.textContent = 'Music: OFF';
+    }
+  }
+}
+
+function toggleAudio() {
   if (state.isPlayingAudio) {
-    // Stop Audio
     stopPatrioticAudio();
     state.isPlayingAudio = false;
-    audioBtn.classList.remove('playing');
-    if (audioLabel) audioLabel.textContent = 'Music: OFF';
+    updateAudioButtonUI(false);
   } else {
-    // Start Audio
-    startPatrioticAudio();
     state.isPlayingAudio = true;
-    audioBtn.classList.add('playing');
-    if (audioLabel) audioLabel.textContent = '🎵 Vande Mataram: ON';
+    updateAudioButtonUI(true);
+    startPatrioticAudio();
   }
 }
 
 function startPatrioticAudio() {
+  if (!state.isPlayingAudio) return;
+
   const candidateAudioPaths = [
     '/music/vandemataram ringtone.mpeg',
     '/music/vandemataram_ringtone.mpeg',
     '/music/vandemataram ringtone.mp3',
-    '/music/vandemataram_ringtone.mp3',
-    '/music/vandemataram.mp3',
-    '/music/vande_mataram.mp3',
-    '/music/vandemataram ringtone.m4a',
-    '/music/vandemataram_ringtone.m4a',
-    '/music/vandemataram_ringtone.wav'
+    '/music/vandemataram.mp3'
   ];
 
   if (!bgAudioElement) {
     bgAudioElement = new Audio();
     bgAudioElement.loop = true;
-    bgAudioElement.volume = 0.45;
+    bgAudioElement.volume = 0.5;
+    bgAudioElement.setAttribute('playsinline', 'true');
+    bgAudioElement.setAttribute('webkit-playsinline', 'true');
   }
 
   let trackIdx = 0;
   const tryNextTrack = () => {
     if (trackIdx >= candidateAudioPaths.length) {
-      // Fallback to Web Audio API Vande Mataram Synthesizer
       startSynthesizedVandeMataram();
       return;
     }
 
     bgAudioElement.src = candidateAudioPaths[trackIdx];
-    bgAudioElement.play().then(() => {
-      showToast('🎵 Playing Vande Mataram Audio Track... 🇮🇳', '🎶');
-    }).catch(() => {
-      trackIdx++;
-      tryNextTrack();
-    });
+    const playPromise = bgAudioElement.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        updateAudioButtonUI(true);
+      }).catch(() => {
+        // Fallback to synth if autoplay is blocked until touch gesture
+        if (state.isPlayingAudio) {
+          startSynthesizedVandeMataram();
+        }
+      });
+    }
   };
 
   tryNextTrack();
