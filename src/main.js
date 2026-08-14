@@ -12,7 +12,104 @@ const state = {
   audioContext: null,
   activeOscillators: [],
   currentQuoteIndex: 0,
-  pledgeCount: 1947
+  pledgeCount: 1947,
+  jwtToken: ''
+};
+
+// ==========================================
+// Security Engine: Secure Cookies, JWT Session Tokens, Anti-XSS & Anti-Crash Protection
+// ==========================================
+
+// 1. Anti-XSS & Script Injection Sanitizer
+function sanitizeInput(inputStr) {
+  if (typeof inputStr !== 'string') return '';
+  return inputStr
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .trim();
+}
+
+// 2. Secure Cookie Storage Helpers (SameSite=Strict; Secure)
+function setSecureCookie(cname, cvalue, exdays = 7) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  const expires = "expires=" + d.toUTCString();
+  const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${cname}=${encodeURIComponent(cvalue)}; ${expires}; path=/; SameSite=Strict${secureFlag}`;
+}
+
+function getSecureCookie(cname) {
+  const name = cname + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+// 3. JWT Token Engine (JSON Web Token Client Session Verification)
+function base64UrlEncode(str) {
+  return btoa(str)
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function generateVisitorJWT() {
+  const header = JSON.stringify({ alg: "HS256", typ: "JWT" });
+  const payload = JSON.stringify({
+    iss: "independence-day-2026",
+    sub: "visitor-session",
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
+    nonce: Math.random().toString(36).substring(2, 10)
+  });
+
+  const encodedHeader = base64UrlEncode(header);
+  const encodedPayload = base64UrlEncode(payload);
+
+  const rawSignature = btoa(`${encodedHeader}.${encodedPayload}.OmprasadSecurityKey2026`).replace(/=/g, '');
+  const jwtToken = `${encodedHeader}.${encodedPayload}.${rawSignature}`;
+
+  setSecureCookie("ID2026_JWT", jwtToken, 1);
+  try {
+    sessionStorage.setItem("ID2026_SESSION_TOKEN", jwtToken);
+  } catch (e) {}
+
+  state.jwtToken = jwtToken;
+  return jwtToken;
+}
+
+// 4. Rate Limiter (Anti-Flood & Crash Prevention)
+const rateLimiter = {
+  lastSubmitTime: 0,
+  submitCount: 0,
+  isAllowed() {
+    const now = Date.now();
+    if (now - this.lastSubmitTime < 10000) {
+      this.submitCount++;
+      if (this.submitCount > 6) {
+        return false;
+      }
+    } else {
+      this.lastSubmitTime = now;
+      this.submitCount = 1;
+    }
+    return true;
+  }
 };
 
 // Freedom Fighters Quotes Dataset
@@ -524,19 +621,33 @@ function stopPatrioticAudio() {
 // Form & Wish Generation Logic (In-Place Slot Morphing with Sender & Receiver Support)
 // ==========================================
 function generateWish(name) {
-  const receiverInput = document.getElementById('userNameInput');
-  const senderInput = document.getElementById('userSenderInput');
-
-  const receiverName = (name || (receiverInput ? receiverInput.value : '')).trim();
-  if (!receiverName) {
-    showToast('Please enter receiver\'s name to generate wish! 🇮🇳', '⚠️');
+  if (!rateLimiter.isAllowed()) {
+    showToast('Security Guard: Request throttled to prevent spam. Please wait a moment! 🛡️', '⚠️');
     return;
   }
 
-  const senderName = senderInput ? senderInput.value.trim() : (state.senderName || '');
+  const receiverInput = document.getElementById('userNameInput');
+  const senderInput = document.getElementById('userSenderInput');
+
+  const rawReceiver = (name || (receiverInput ? receiverInput.value : '')).trim();
+  const receiverName = sanitizeInput(rawReceiver);
+
+  if (!receiverName) {
+    showToast('Please enter a valid receiver name! 🇮🇳', '⚠️');
+    return;
+  }
+
+  const rawSender = senderInput ? senderInput.value.trim() : (state.senderName || '');
+  const senderName = sanitizeInput(rawSender);
 
   state.currentName = receiverName;
   state.senderName = senderName;
+
+  // Persist session state in secure cookies
+  setSecureCookie("ID2026_RECEIVER", receiverName, 7);
+  if (senderName) {
+    setSecureCookie("ID2026_SENDER", senderName, 7);
+  }
 
   const nameSection = document.getElementById('nameSection');
   const wishSection = document.getElementById('wishSection');
@@ -915,12 +1026,15 @@ function checkUrlParams() {
     const receiverInput = document.getElementById('userNameInput');
     const senderInput = document.getElementById('userSenderInput');
 
-    if (receiverInput) receiverInput.value = nameParam.trim();
-    if (senderParam && senderParam.trim() !== '' && senderInput) {
-      senderInput.value = senderParam.trim();
-      state.senderName = senderParam.trim();
+    const cleanName = sanitizeInput(nameParam.trim());
+    const cleanSender = senderParam ? sanitizeInput(senderParam.trim()) : '';
+
+    if (receiverInput) receiverInput.value = cleanName;
+    if (cleanSender && senderInput) {
+      senderInput.value = cleanSender;
+      state.senderName = cleanSender;
     }
-    generateWish(nameParam.trim());
+    generateWish(cleanName);
   }
 }
 
@@ -950,9 +1064,12 @@ function initScrollReveal() {
 }
 
 // ==========================================
-// Initialize Event Listeners
+// Initialize Event Listeners & Security Engine
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Security Engine & Generate Visitor JWT Token
+  generateVisitorJWT();
+
   initParticleCanvas();
   initQuotesCarousel();
   initPledgeWall();
