@@ -314,9 +314,6 @@ function generateWish(name) {
   // Update URL search param for direct sharing capability
   const newUrl = `${window.location.pathname}?name=${encodeURIComponent(cleanName)}`;
   window.history.replaceState({ path: newUrl }, '', newUrl);
-
-  // Trigger Code Typing Signature Animation
-  animateDeveloperSignature(cleanName);
 }
 
 function triggerTricolorConfetti() {
@@ -356,24 +353,6 @@ function triggerTricolorConfetti() {
     spread: 120,
     startVelocity: 45,
   });
-}
-
-function animateDeveloperSignature(name) {
-  const codeTag = document.getElementById('typingCodeSignature');
-  if (!codeTag) return;
-
-  const text = `<CreatedWithLoveBy name="Omprasad Bhaskar Padwalkar" for="${name}" year="2026" />`;
-  codeTag.textContent = '';
-  let i = 0;
-
-  const timer = setInterval(() => {
-    if (i < text.length) {
-      codeTag.textContent += text.charAt(i);
-      i++;
-    } else {
-      clearInterval(timer);
-    }
-  }, 35);
 }
 
 // ==========================================

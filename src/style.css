@@ -704,23 +704,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.dev-role {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-}
-
-.code-signature-tag {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px stroke rgba(255, 255, 255, 0.1);
-  padding: 0.35rem 0.9rem;
-  border-radius: 8px;
-  font-family: var(--font-code);
-  font-size: 0.75rem;
-  color: var(--accent-gold-light);
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
 /* Action Bar */
 .action-bar {
   display: grid;

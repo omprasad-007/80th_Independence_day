@@ -2,7 +2,7 @@
 
 A beautiful, emotional, modern, and highly shareable personalized wishing web application celebrating **India's 80th Independence Day (15 August 2026)**.
 
-Created with ❤️ and Code by **Omprasad Bhaskar Padwalkar, Developer & Creator**.
+Created with ❤️ and Code by **Omprasad Bhaskar Padwalkar**.
 
 ---
 
@@ -100,7 +100,6 @@ Created with ❤️ and Code by **Omprasad Bhaskar Padwalkar, Developer & Creato
 ## 👨‍💻 Author & Credits
 
 **Omprasad Bhaskar Padwalkar**  
-*Developer & Creator 🇮🇳*  
 
 *15 August 2026 🇮🇳 | India's 80th Independence Day*  
 *With Love & Best Wishes — Omprasad Bhaskar Padwalkar ❤️🇮🇳*
