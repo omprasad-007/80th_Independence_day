@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://80th-independence-day.vercel.app/sitemap.xml
+Sitemap: https://80th-independence-day-tau.vercel.app/sitemap.xml
