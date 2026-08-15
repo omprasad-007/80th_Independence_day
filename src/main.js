@@ -652,6 +652,30 @@ function stopPatrioticAudio() {
   }
 }
 
+// Helper functions for secure, obfuscated share URL payload
+function encodeWishToken(name) {
+  try {
+    const payload = JSON.stringify({ n: name, id: "ID2026" });
+    return btoa(encodeURIComponent(payload));
+  } catch (e) {
+    return btoa(name);
+  }
+}
+
+function decodeWishToken(token) {
+  try {
+    const jsonStr = decodeURIComponent(atob(token));
+    const data = JSON.parse(jsonStr);
+    return data && data.n ? data.n : null;
+  } catch (e) {
+    try {
+      return atob(token);
+    } catch (err) {
+      return null;
+    }
+  }
+}
+
 // ==========================================
 // Form & Wish Generation Logic
 // ==========================================
@@ -662,8 +686,6 @@ function generateWish(name) {
   }
 
   const receiverInput = document.getElementById('userNameInput');
-  const senderInput = document.getElementById('userSenderInput');
-
   const rawReceiver = (name || (receiverInput ? receiverInput.value : '')).trim();
   const receiverName = sanitizeInput(rawReceiver);
 
@@ -672,16 +694,10 @@ function generateWish(name) {
     return;
   }
 
-  const rawSender = senderInput ? senderInput.value.trim() : (state.senderName || '');
-  const senderName = sanitizeInput(rawSender);
-
   state.currentName = receiverName;
-  state.senderName = senderName;
+  state.senderName = 'Omprasad Bhaskar Padwalkar';
 
   setSecureCookie("ID2026_RECEIVER", receiverName, 7);
-  if (senderName) {
-    setSecureCookie("ID2026_SENDER", senderName, 7);
-  }
 
   const nameSection = document.getElementById('nameSection');
   const wishSection = document.getElementById('wishSection');
@@ -691,7 +707,7 @@ function generateWish(name) {
 
   if (nameText) nameText.textContent = receiverName;
   if (senderNameText) {
-    senderNameText.textContent = senderName ? `${senderName} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
+    senderNameText.textContent = 'Omprasad Bhaskar Padwalkar 🇮🇳';
   }
 
   if (nameSection) nameSection.classList.add('hidden');
@@ -711,10 +727,8 @@ function generateWish(name) {
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  let newUrl = `${window.location.pathname}?name=${encodeURIComponent(receiverName)}`;
-  if (senderName) {
-    newUrl += `&sender=${encodeURIComponent(senderName)}`;
-  }
+  const token = encodeWishToken(receiverName);
+  const newUrl = `${window.location.pathname}?wish=${encodeURIComponent(token)}`;
   window.history.replaceState({}, '', newUrl);
 }
 
@@ -749,11 +763,8 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const name = state.currentName || 'Friend';
-  const senderSignature = state.senderName ? `${state.senderName} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
-  let shareUrl = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`;
-  if (state.senderName) {
-    shareUrl += `&sender=${encodeURIComponent(state.senderName)}`;
-  }
+  const token = encodeWishToken(name);
+  const shareUrl = `${window.location.origin}${window.location.pathname}?wish=${encodeURIComponent(token)}`;
 
   return `Dear ${name}, ❤️
 
@@ -766,9 +777,9 @@ Let us celebrate the spirit of freedom and work together for a brighter and stro
 Jai Hind! 🇮🇳❤️
 
 With Love & Best Wishes ❤️
-— ${senderSignature}
+— Omprasad Bhaskar Padwalkar 🇮🇳
 
-Generate your personalized 80th Independence Day wish here:
+Open your personalized 80th Independence Day wish here:
 ${shareUrl}`;
 }
 
@@ -781,10 +792,14 @@ function shareOnWhatsApp() {
 
 async function shareNativeWish() {
   const wishText = getWishText();
+  const name = state.currentName || 'Friend';
+  const token = encodeWishToken(name);
+  const shareUrl = `${window.location.origin}${window.location.pathname}?wish=${encodeURIComponent(token)}`;
+
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
     text: wishText,
-    url: `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(state.currentName || '')}`
+    url: shareUrl
   };
 
   if (navigator.share) {
@@ -1014,6 +1029,8 @@ function startOpeningSequence() {
   const boomOverlay = document.getElementById('boomFlashOverlay');
   const permanentHeroHeader = document.getElementById('permanentHeroHeader');
   const nameSection = document.getElementById('nameSection');
+  const wishSection = document.getElementById('wishSection');
+  const displayRecipient = document.getElementById('displayRecipientName');
 
   // Scene 1: Dark Beginning with rotating Ashoka Chakra (0.0s - 1.0s)
   if (cinematicOverlay) {
@@ -1045,10 +1062,27 @@ function startOpeningSequence() {
     }
   }, 2000);
 
-  // Scene 5: Reveal Name Section ("Who would you like to wish today? ❤️") at 3.8s
+  // Scene 5: Reveal Name Section or Shared Wish Card at 3.8s
   setTimeout(() => {
-    if (nameSection) {
-      nameSection.classList.remove('hidden');
+    if (state.isSharedWishView) {
+      if (nameSection) nameSection.classList.add('hidden');
+      if (wishSection) {
+        wishSection.classList.remove('hidden');
+        if (displayRecipient) {
+          displayRecipient.classList.remove('anim-name-appear');
+          void displayRecipient.offsetWidth;
+          displayRecipient.classList.add('anim-name-appear');
+        }
+        if (typeof window.triggerFirecrackers === 'function') {
+          window.triggerFirecrackers();
+        }
+        triggerTricolorConfetti();
+        playFireworkBurstSound();
+      }
+    } else {
+      if (nameSection) {
+        nameSection.classList.remove('hidden');
+      }
     }
   }, 3800);
 }
@@ -1058,22 +1092,20 @@ function startOpeningSequence() {
 // ==========================================
 function checkUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
-  const nameParam = urlParams.get('name');
-  const senderParam = urlParams.get('sender');
+  const wishToken = urlParams.get('wish') || urlParams.get('w') || urlParams.get('share');
 
-  if (nameParam && nameParam.trim() !== '') {
-    const receiverInput = document.getElementById('userNameInput');
-    const senderInput = document.getElementById('userSenderInput');
+  if (wishToken) {
+    const decodedName = decodeWishToken(wishToken);
+    if (decodedName && decodedName.trim() !== '') {
+      const cleanName = sanitizeInput(decodedName.trim());
+      state.currentName = cleanName;
+      state.isSharedWishView = true;
 
-    const cleanName = sanitizeInput(nameParam.trim());
-    const cleanSender = senderParam ? sanitizeInput(senderParam.trim()) : '';
-
-    if (receiverInput) receiverInput.value = cleanName;
-    if (cleanSender && senderInput) {
-      senderInput.value = cleanSender;
-      state.senderName = cleanSender;
+      const nameText = document.getElementById('nameText');
+      const senderNameText = document.getElementById('senderNameText');
+      if (nameText) nameText.textContent = cleanName;
+      if (senderNameText) senderNameText.textContent = 'Omprasad Bhaskar Padwalkar 🇮🇳';
     }
-    generateWish(cleanName);
   }
 }
 
