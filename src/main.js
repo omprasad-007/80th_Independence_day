@@ -715,125 +715,6 @@ function extractShareIdFromUrl() {
 }
 
 // ==========================================
-// Past Sent Wishes History Engine
-// ==========================================
-function getPastWishes() {
-  try {
-    const raw = localStorage.getItem('ID2026_SENT_WISHES');
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveWishToHistory(receiverName, senderName, shareId) {
-  try {
-    const history = getPastWishes();
-    const filtered = history.filter(item => item.shareId !== shareId);
-    filtered.unshift({
-      receiver: receiverName,
-      sender: senderName || 'Omprasad Bhaskar Padwalkar',
-      shareId: shareId,
-      timestamp: Date.now(),
-      dateStr: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    });
-    const trimmed = filtered.slice(0, 15);
-    localStorage.setItem('ID2026_SENT_WISHES', JSON.stringify(trimmed));
-    renderPastWishesList();
-  } catch (e) { }
-}
-
-function clearPastWishesHistory() {
-  try {
-    localStorage.removeItem('ID2026_SENT_WISHES');
-    renderPastWishesList();
-    showToast('Sent wishes history cleared!', '🗑️');
-  } catch (e) { }
-}
-
-function renderPastWishesList() {
-  const section = document.getElementById('pastWishesSection');
-  const container = document.getElementById('pastWishesList');
-  const clearBtn = document.getElementById('clearHistoryBtn');
-  if (!section || !container) return;
-
-  const history = getPastWishes();
-  if (!history || history.length === 0) {
-    section.classList.add('hidden');
-    return;
-  }
-
-  section.classList.remove('hidden');
-  if (clearBtn) {
-    clearBtn.classList.remove('hidden');
-    clearBtn.onclick = clearPastWishesHistory;
-  }
-
-  container.innerHTML = history.map(item => `
-    <div class="past-wish-item scroll-stagger-item">
-      <div class="past-wish-details">
-        <div class="past-wish-names">
-          <span class="badge-receiver">To: <strong>${item.receiver}</strong></span>
-          <span class="badge-sender">From: <strong>${item.sender}</strong> 🇮🇳</span>
-        </div>
-        <div class="past-wish-meta">
-          <span class="past-wish-date">📅 ${item.dateStr}</span>
-        </div>
-      </div>
-      <button type="button" class="past-wish-resend-btn" data-shareid="${item.shareId}" data-receiver="${item.receiver}" data-sender="${item.sender}">
-        <span>Resend 💌</span>
-      </button>
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.past-wish-resend-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const receiver = btn.getAttribute('data-receiver');
-      const sender = btn.getAttribute('data-sender');
-      const shareId = btn.getAttribute('data-shareid');
-
-      if (receiver) {
-        state.currentName = receiver;
-        state.senderName = sender || 'Omprasad Bhaskar Padwalkar';
-        state.currentShareId = shareId || generateShortShareId(receiver, state.senderName);
-
-        const nameSection = document.getElementById('nameSection');
-        const wishSection = document.getElementById('wishSection');
-        const nameText = document.getElementById('nameText');
-        const senderNameText = document.getElementById('senderNameText');
-        const displayRecipient = document.getElementById('displayRecipientName');
-
-        if (nameText) nameText.textContent = receiver;
-        if (senderNameText) senderNameText.textContent = `${state.senderName} 🇮🇳`;
-
-        if (nameSection) nameSection.classList.add('hidden');
-        if (wishSection) wishSection.classList.remove('hidden');
-
-        if (displayRecipient) {
-          displayRecipient.classList.remove('anim-name-appear');
-          void displayRecipient.offsetWidth;
-          displayRecipient.classList.add('anim-name-appear');
-        }
-
-        if (typeof window.triggerFirecrackers === 'function') {
-          window.triggerFirecrackers();
-        }
-        triggerTricolorConfetti();
-        playFireworkBurstSound();
-
-        const wishSectionEl = document.getElementById('wishSection');
-        if (wishSectionEl) wishSectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        const newUrl = `${window.location.origin}/w/${state.currentShareId}`;
-        window.history.replaceState({}, '', newUrl);
-
-        showToast(`Loaded wish for ${receiver} from ${state.senderName}! 🇮🇳`, '💌');
-      }
-    });
-  });
-}
-
-// ==========================================
 // Form & Wish Generation Logic
 // ==========================================
 function generateWish(name) {
@@ -864,7 +745,6 @@ function generateWish(name) {
   state.senderName = senderName;
 
   setSecureCookie("ID2026_RECEIVER", receiverName, 7);
-  saveWishToHistory(receiverName, senderName, shareId);
 
   const nameSection = document.getElementById('nameSection');
   const wishSection = document.getElementById('wishSection');
@@ -1385,7 +1265,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuotesCarousel();
   initPledgeWall();
   initScrollReveal();
-  renderPastWishesList();
 
   // Start automatic opening sequence immediately on website opening
   startOpeningSequence();
