@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://80th-independence-day.vercel.app/sitemap.xml
