@@ -803,7 +803,7 @@ function triggerTricolorConfetti() {
 function getWishText() {
   const name = state.currentName || 'Friend';
   const shareId = state.currentShareId || generateShortShareId(name);
-  const shareUrl = `${window.location.origin}/w/${shareId}`;
+  const shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
 
   return `Dear ${name}, ❤️
 
@@ -833,7 +833,7 @@ async function shareNativeWish() {
   const wishText = getWishText();
   const name = state.currentName || 'Friend';
   const shareId = state.currentShareId || generateShortShareId(name);
-  const shareUrl = `${window.location.origin}/w/${shareId}`;
+  const shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
 
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
@@ -1133,8 +1133,35 @@ function startOpeningSequence() {
 // Check URL Parameters & Path (/w/:id) on Load
 // ==========================================
 function checkUrlParams() {
-  const shareId = extractShareIdFromUrl();
+  const urlParams = new URLSearchParams(window.location.search);
 
+  // 1. First check for existing/old shared links with ?name=... or ?recipient=...
+  const nameParam = urlParams.get('name') || urlParams.get('recipient');
+  const senderParam = urlParams.get('sender');
+
+  if (nameParam && nameParam.trim() !== '') {
+    try {
+      const decodedName = decodeURIComponent(nameParam.trim());
+      const cleanName = sanitizeInput(decodedName);
+
+      if (cleanName) {
+        state.currentName = cleanName;
+        state.isSharedWishView = true;
+
+        const nameText = document.getElementById('nameText');
+        const senderNameText = document.getElementById('senderNameText');
+        if (nameText) nameText.textContent = cleanName;
+        if (senderNameText) {
+          const cleanSender = senderParam ? sanitizeInput(decodeURIComponent(senderParam.trim())) : '';
+          senderNameText.textContent = cleanSender ? `${cleanSender} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
+        }
+        return;
+      }
+    } catch (e) { }
+  }
+
+  // 2. Check for unique share ID in path (/w/:id) or query param (?wish=... or ?w=...)
+  const shareId = extractShareIdFromUrl();
   if (shareId) {
     const wishData = resolveWishFromShareId(shareId);
     if (wishData && wishData.receiverName) {
@@ -1146,6 +1173,7 @@ function checkUrlParams() {
       const senderNameText = document.getElementById('senderNameText');
       if (nameText) nameText.textContent = wishData.receiverName;
       if (senderNameText) senderNameText.textContent = `${wishData.senderName} 🇮🇳`;
+      return;
     } else {
       state.isInvalidShareId = true;
     }
