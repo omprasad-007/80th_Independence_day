@@ -652,28 +652,66 @@ function stopPatrioticAudio() {
   }
 }
 
-// Helper functions for secure, obfuscated share URL payload
-function encodeWishToken(name) {
+// ==========================================
+// Persistent Unique Share ID Engine (/w/:id)
+// ==========================================
+function generateShortShareId(name) {
   try {
-    const payload = JSON.stringify({ n: name, id: "ID2026" });
-    return btoa(encodeURIComponent(payload));
+    const rawPayload = JSON.stringify({
+      n: name,
+      s: "Omprasad Bhaskar Padwalkar",
+      t: Date.now()
+    });
+    const encoded = btoa(encodeURIComponent(rawPayload));
+    return encoded.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   } catch (e) {
-    return btoa(name);
+    try {
+      return btoa(encodeURIComponent(name)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    } catch (err) {
+      return 'wish2026';
+    }
   }
 }
 
-function decodeWishToken(token) {
+function resolveWishFromShareId(shareId) {
+  if (!shareId) return null;
   try {
-    const jsonStr = decodeURIComponent(atob(token));
+    const padded = shareId.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonStr = decodeURIComponent(atob(padded));
     const data = JSON.parse(jsonStr);
-    return data && data.n ? data.n : null;
+
+    if (data && data.n) {
+      return {
+        shareId: shareId,
+        receiverName: sanitizeInput(data.n),
+        senderName: data.s || "Omprasad Bhaskar Padwalkar",
+        createdAt: data.t || Date.now()
+      };
+    }
   } catch (e) {
     try {
-      return atob(token);
-    } catch (err) {
-      return null;
-    }
+      const padded = shareId.replace(/-/g, '+').replace(/_/g, '/');
+      const rawName = decodeURIComponent(atob(padded));
+      if (rawName && rawName.trim()) {
+        return {
+          shareId: shareId,
+          receiverName: sanitizeInput(rawName.trim()),
+          senderName: "Omprasad Bhaskar Padwalkar",
+          createdAt: Date.now()
+        };
+      }
+    } catch (err) { }
   }
+  return null;
+}
+
+function extractShareIdFromUrl() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  if (pathParts.length >= 2 && pathParts[0].toLowerCase() === 'w') {
+    return pathParts[1];
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('w') || urlParams.get('wish') || urlParams.get('share') || urlParams.get('id');
 }
 
 // ==========================================
@@ -694,7 +732,9 @@ function generateWish(name) {
     return;
   }
 
+  const shareId = generateShortShareId(receiverName);
   state.currentName = receiverName;
+  state.currentShareId = shareId;
   state.senderName = 'Omprasad Bhaskar Padwalkar';
 
   setSecureCookie("ID2026_RECEIVER", receiverName, 7);
@@ -727,8 +767,7 @@ function generateWish(name) {
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  const token = encodeWishToken(receiverName);
-  const newUrl = `${window.location.pathname}?wish=${encodeURIComponent(token)}`;
+  const newUrl = `${window.location.origin}/w/${shareId}`;
   window.history.replaceState({}, '', newUrl);
 }
 
@@ -763,8 +802,8 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const name = state.currentName || 'Friend';
-  const token = encodeWishToken(name);
-  const shareUrl = `${window.location.origin}${window.location.pathname}?wish=${encodeURIComponent(token)}`;
+  const shareId = state.currentShareId || generateShortShareId(name);
+  const shareUrl = `${window.location.origin}/w/${shareId}`;
 
   return `Dear ${name}, ❤️
 
@@ -793,8 +832,8 @@ function shareOnWhatsApp() {
 async function shareNativeWish() {
   const wishText = getWishText();
   const name = state.currentName || 'Friend';
-  const token = encodeWishToken(name);
-  const shareUrl = `${window.location.origin}${window.location.pathname}?wish=${encodeURIComponent(token)}`;
+  const shareId = state.currentShareId || generateShortShareId(name);
+  const shareUrl = `${window.location.origin}/w/${shareId}`;
 
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
@@ -1079,6 +1118,9 @@ function startOpeningSequence() {
         triggerTricolorConfetti();
         playFireworkBurstSound();
       }
+    } else if (state.isInvalidShareId) {
+      showToast('Wish link invalid or not found! Enter a name below to create a new wish. 🇮🇳', '⚠️');
+      if (nameSection) nameSection.classList.remove('hidden');
     } else {
       if (nameSection) {
         nameSection.classList.remove('hidden');
@@ -1088,23 +1130,24 @@ function startOpeningSequence() {
 }
 
 // ==========================================
-// Check URL Parameters on Load
+// Check URL Parameters & Path (/w/:id) on Load
 // ==========================================
 function checkUrlParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const wishToken = urlParams.get('wish') || urlParams.get('w') || urlParams.get('share');
+  const shareId = extractShareIdFromUrl();
 
-  if (wishToken) {
-    const decodedName = decodeWishToken(wishToken);
-    if (decodedName && decodedName.trim() !== '') {
-      const cleanName = sanitizeInput(decodedName.trim());
-      state.currentName = cleanName;
+  if (shareId) {
+    const wishData = resolveWishFromShareId(shareId);
+    if (wishData && wishData.receiverName) {
+      state.currentName = wishData.receiverName;
+      state.currentShareId = wishData.shareId;
       state.isSharedWishView = true;
 
       const nameText = document.getElementById('nameText');
       const senderNameText = document.getElementById('senderNameText');
-      if (nameText) nameText.textContent = cleanName;
-      if (senderNameText) senderNameText.textContent = 'Omprasad Bhaskar Padwalkar 🇮🇳';
+      if (nameText) nameText.textContent = wishData.receiverName;
+      if (senderNameText) senderNameText.textContent = `${wishData.senderName} 🇮🇳`;
+    } else {
+      state.isInvalidShareId = true;
     }
   }
 }
