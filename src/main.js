@@ -468,7 +468,7 @@ function toggleAudio() {
   } else {
     state.isPlayingAudio = true;
     updateAudioButtonUI(true);
-    startPatrioticAudio();
+    enableAndPlayAudio();
   }
 }
 
@@ -495,10 +495,8 @@ function startPatrioticAudio() {
     if (playPromise !== undefined) {
       playPromise.then(() => {
         updateAudioButtonUI(true);
-      }).catch((err) => {
-        if (state.isPlayingAudio) {
-          startSynthesizedVandeMataram();
-        }
+      }).catch(() => {
+        // Expected on mobile before user gesture - unlock listener will activate on touch
       });
     }
   }
@@ -516,136 +514,30 @@ function enableAndPlayAudio() {
     if (playPromise !== undefined) {
       playPromise.then(() => {
         updateAudioButtonUI(true);
-      }).catch(() => {
-        startSynthesizedVandeMataram();
+      }).catch((err) => {
+        console.warn('Mobile audio play error:', err);
       });
     }
   }
 
-  if (state.audioContext) {
-    if (state.audioContext.state === 'suspended') {
-      state.audioContext.resume().catch(() => { });
-    }
-  } else {
-    startSynthesizedVandeMataram();
-  }
-}
-
-function startSynthesizedVandeMataram() {
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    if (!state.audioContext) {
-      state.audioContext = new AudioContextClass();
-    }
-
-    if (state.audioContext.state === 'suspended') {
-      state.audioContext.resume().catch(() => { });
-    }
-
-    if (state.synthTimerId) {
-      clearTimeout(state.synthTimerId);
-      state.synthTimerId = null;
-    }
-
-    // Master Volume Gain
-    const masterGain = state.audioContext.createGain();
-    masterGain.gain.setValueAtTime(0.15, state.audioContext.currentTime);
-    masterGain.connect(state.audioContext.destination);
-
-    // Continuous Tanpura Drone (C4 + G4)
-    const droneSa = state.audioContext.createOscillator();
-    const dronePa = state.audioContext.createOscillator();
-    const droneGain = state.audioContext.createGain();
-
-    droneSa.type = 'sine';
-    droneSa.frequency.setValueAtTime(261.63, state.audioContext.currentTime);
-    dronePa.type = 'triangle';
-    dronePa.frequency.setValueAtTime(392.00, state.audioContext.currentTime);
-
-    droneGain.gain.setValueAtTime(0.03, state.audioContext.currentTime);
-    droneSa.connect(droneGain);
-    dronePa.connect(droneGain);
-    droneGain.connect(masterGain);
-
-    droneSa.start();
-    dronePa.start();
-
-    // Vande Mataram Sequence
-    const vandeMataramMelody = [
-      { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      { freq: 523.25, duration: 0.45 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
-      { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      { freq: 440.00, duration: 0.35 }, { freq: 523.25, duration: 0.35 }, { freq: 587.33, duration: 0.45 },
-      { freq: 659.25, duration: 0.65 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
-      { freq: 523.25, duration: 0.35 }, { freq: 440.00, duration: 0.35 }, { freq: 392.00, duration: 0.45 },
-      { freq: 440.00, duration: 0.45 }, { freq: 392.00, duration: 0.70 },
-      { freq: 329.63, duration: 0.45 }, { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.90 },
-      { freq: 329.63, duration: 0.50 }, { freq: 392.00, duration: 0.50 }, { freq: 440.00, duration: 0.70 },
-      { freq: 523.25, duration: 1.30 }, { freq: 0, duration: 0.8 }
-    ];
-
-    let noteIndex = 0;
-
-    const playNextNote = () => {
-      if (!state.isPlayingAudio || !state.audioContext || document.hidden) {
-        try { droneSa.stop(); dronePa.stop(); } catch (e) { }
-        return;
-      }
-
-      const note = vandeMataramMelody[noteIndex % vandeMataramMelody.length];
-
-      if (note.freq > 0) {
-        try {
-          const osc = state.audioContext.createOscillator();
-          const harmonicOsc = state.audioContext.createOscillator();
-          const noteGain = state.audioContext.createGain();
-
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(note.freq, state.audioContext.currentTime);
-
-          harmonicOsc.type = 'triangle';
-          harmonicOsc.frequency.setValueAtTime(note.freq * 2, state.audioContext.currentTime);
-
-          const now = state.audioContext.currentTime;
-          const dur = note.duration;
-
-          noteGain.gain.setValueAtTime(0.001, now);
-          noteGain.gain.exponentialRampToValueAtTime(0.12, now + 0.08);
-          noteGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
-          osc.connect(noteGain);
-          harmonicOsc.connect(noteGain);
-          noteGain.connect(masterGain);
-
-          osc.start(now);
-          harmonicOsc.start(now);
-
-          osc.stop(now + dur + 0.05);
-          harmonicOsc.stop(now + dur + 0.05);
-        } catch (e) { }
-      }
-
-      noteIndex++;
-      if (state.isPlayingAudio) {
-        state.synthTimerId = setTimeout(playNextNote, note.duration * 1000);
-      } else {
-        try { droneSa.stop(); dronePa.stop(); } catch (e) { }
-      }
-    };
-
-    playNextNote();
-
-  } catch (err) {
-    console.warn('Web Audio synthesis prevented:', err);
+  if (state.audioContext && state.audioContext.state === 'suspended') {
+    state.audioContext.resume().catch(() => { });
   }
 }
 
 function playFireworkBurstSound() {
-  if (!state.isPlayingAudio || !state.audioContext || document.hidden) return;
+  if (!state.isPlayingAudio || document.hidden) return;
   try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    if (!state.audioContext) {
+      state.audioContext = new AudioCtx();
+    }
+    if (state.audioContext.state === 'suspended') {
+      state.audioContext.resume().catch(() => { });
+    }
+
     const osc = state.audioContext.createOscillator();
     const gain = state.audioContext.createGain();
     const now = state.audioContext.currentTime;
@@ -666,10 +558,6 @@ function playFireworkBurstSound() {
 }
 
 function stopPatrioticAudio() {
-  if (state.synthTimerId) {
-    clearTimeout(state.synthTimerId);
-    state.synthTimerId = null;
-  }
   if (bgAudioElement) {
     bgAudioElement.pause();
   }

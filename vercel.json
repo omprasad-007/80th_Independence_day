@@ -3,8 +3,13 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/w/:id", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/w/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!music/|assets/|.*\\.).*)",
+      "destination": "/index.html"
+    }
   ]
 }
-
