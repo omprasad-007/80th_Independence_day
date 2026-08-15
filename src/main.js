@@ -2,6 +2,17 @@ import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
 
 // ==========================================
+// Global Error Boundary & Crash Protection
+// ==========================================
+window.addEventListener('error', (event) => {
+  console.warn('Handled global application error:', event.error || event.message);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.warn('Handled unhandled promise rejection:', event.reason);
+});
+
+// ==========================================
 // Application State & Constants
 // ==========================================
 const state = {
@@ -11,9 +22,14 @@ const state = {
   wasAudioPlayingBeforeHidden: false,
   audioContext: null,
   activeOscillators: [],
+  synthTimerId: null,
+  quotesIntervalId: null,
   currentQuoteIndex: 0,
   pledgeCount: 1947,
-  jwtToken: ''
+  jwtToken: '',
+  animFrameId: null,
+  lastConfettiTime: 0,
+  isExportingImage: false
 };
 
 // ==========================================
@@ -37,77 +53,83 @@ function sanitizeInput(inputStr) {
 
 // 2. Secure Cookie Storage Helpers (SameSite=Strict; Secure)
 function setSecureCookie(cname, cvalue, exdays = 7) {
-  const d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  const expires = "expires=" + d.toUTCString();
-  const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-  document.cookie = `${cname}=${encodeURIComponent(cvalue)}; ${expires}; path=/; SameSite=Strict${secureFlag}`;
+  try {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + d.toUTCString();
+    const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${cname}=${encodeURIComponent(cvalue)}; ${expires}; path=/; SameSite=Strict${secureFlag}`;
+  } catch (e) { }
 }
 
 function getSecureCookie(cname) {
-  const name = cname + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') {
-      c = c.substring(1);
+  try {
+    const name = cname + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
     }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
+  } catch (e) { }
   return "";
 }
 
 // 3. JWT Token Engine (JSON Web Token Client Session Verification)
 function base64UrlEncode(str) {
-  return btoa(str)
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+  try {
+    return btoa(str)
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+  } catch (e) {
+    return '';
+  }
 }
 
 function generateVisitorJWT() {
-  const header = JSON.stringify({ alg: "HS256", typ: "JWT" });
-  const payload = JSON.stringify({
-    iss: "independence-day-2026",
-    sub: "visitor-session",
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
-    nonce: Math.random().toString(36).substring(2, 10)
-  });
-
-  const encodedHeader = base64UrlEncode(header);
-  const encodedPayload = base64UrlEncode(payload);
-
-  const rawSignature = btoa(`${encodedHeader}.${encodedPayload}.OmprasadSecurityKey2026`).replace(/=/g, '');
-  const jwtToken = `${encodedHeader}.${encodedPayload}.${rawSignature}`;
-
-  setSecureCookie("ID2026_JWT", jwtToken, 1);
   try {
-    sessionStorage.setItem("ID2026_SESSION_TOKEN", jwtToken);
-  } catch (e) {}
+    const header = JSON.stringify({ alg: "HS256", typ: "JWT" });
+    const payload = JSON.stringify({
+      iss: "independence-day-2026",
+      sub: "visitor-session",
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
+      nonce: Math.random().toString(36).substring(2, 10)
+    });
 
-  state.jwtToken = jwtToken;
-  return jwtToken;
+    const encodedHeader = base64UrlEncode(header);
+    const encodedPayload = base64UrlEncode(payload);
+
+    const rawSignature = btoa(`${encodedHeader}.${encodedPayload}.OmprasadSecurityKey2026`).replace(/=/g, '');
+    const jwtToken = `${encodedHeader}.${encodedPayload}.${rawSignature}`;
+
+    setSecureCookie("ID2026_JWT", jwtToken, 1);
+    try {
+      sessionStorage.setItem("ID2026_SESSION_TOKEN", jwtToken);
+    } catch (e) { }
+
+    state.jwtToken = jwtToken;
+    return jwtToken;
+  } catch (err) {
+    return '';
+  }
 }
 
-// 4. Rate Limiter (Anti-Flood & Crash Prevention)
+// 4. Rate Limiter (Anti-Flood, High-Concurrency & Crash Prevention)
 const rateLimiter = {
   lastSubmitTime: 0,
-  submitCount: 0,
   isAllowed() {
     const now = Date.now();
-    if (now - this.lastSubmitTime < 10000) {
-      this.submitCount++;
-      if (this.submitCount > 6) {
-        return false;
-      }
-    } else {
-      this.lastSubmitTime = now;
-      this.submitCount = 1;
+    if (now - this.lastSubmitTime < 1200) { // Max 1 submit per 1.2 seconds
+      return false;
     }
+    this.lastSubmitTime = now;
     return true;
   }
 };
@@ -147,22 +169,29 @@ const freedomQuotes = [
 ];
 
 // ==========================================
-// Canvas Interactive Background Particles & Floating Hearts Engine
+// Canvas Interactive Background Particles & Floating Hearts Engine (GPU Optimized)
 // ==========================================
 function initParticleCanvas() {
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+  if (!ctx) return;
 
   let width = canvas.width = window.innerWidth;
   let height = canvas.height = window.innerHeight;
 
+  // Debounce resize event to prevent memory allocation thrashing
+  let resizeTimeout = null;
   window.addEventListener('resize', () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  });
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }, 150);
+  }, { passive: true });
 
   const tricolorColors = ['#FF9933', '#FF671F', '#FFFFFF', '#138808', '#046A38', '#F59E0B'];
+  const isMobile = window.innerWidth < 768 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
 
   // Floating Heart Object
   class FloatingHeart {
@@ -173,12 +202,12 @@ function initParticleCanvas() {
     reset(initial = false) {
       this.x = Math.random() * width;
       this.y = initial ? Math.random() * height : height + Math.random() * 40;
-      this.size = Math.random() * 12 + 8; // Size between 8px and 20px
-      this.speedY = -(Math.random() * 1.0 + 0.5); // Smooth upward float
-      this.speedX = (Math.random() - 0.5) * 0.6;
+      this.size = Math.random() * 10 + 8;
+      this.speedY = -(Math.random() * 0.9 + 0.4);
+      this.speedX = (Math.random() - 0.5) * 0.5;
       this.sway = Math.random() * 0.03 + 0.01;
       this.swayOffset = Math.random() * Math.PI * 2;
-      this.opacity = Math.random() * 0.6 + 0.25;
+      this.opacity = Math.random() * 0.5 + 0.3;
       this.color = Math.random() > 0.25 ? '#FF4D6D' : (Math.random() > 0.5 ? '#FF9933' : '#138808');
     }
 
@@ -195,10 +224,7 @@ function initParticleCanvas() {
       ctx.save();
       ctx.globalAlpha = Math.max(0.1, Math.min(0.8, this.opacity));
       ctx.fillStyle = this.color;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = this.color;
 
-      // Draw heart path
       const topCurveHeight = this.size * 0.3;
       ctx.beginPath();
       ctx.moveTo(this.x, this.y + topCurveHeight);
@@ -237,16 +263,16 @@ function initParticleCanvas() {
     reset(initial = false) {
       this.x = Math.random() * width;
       this.y = initial ? Math.random() * height : height + Math.random() * 30;
-      this.radius = Math.random() * 3 + 1;
+      this.radius = Math.random() * 2.5 + 1;
       this.color = tricolorColors[Math.floor(Math.random() * tricolorColors.length)];
-      this.vy = -(Math.random() * 1.2 + 0.4);
-      this.vx = (Math.random() - 0.5) * 0.8;
+      this.vy = -(Math.random() * 1.0 + 0.3);
+      this.vx = (Math.random() - 0.5) * 0.6;
       this.alpha = Math.random() * 0.6 + 0.3;
     }
 
     update() {
       this.y += this.vy;
-      this.x += Math.sin(this.y * 0.01) * 0.5 + this.vx;
+      this.x += Math.sin(this.y * 0.01) * 0.4 + this.vx;
 
       if (this.y < -20 || this.x < -20 || this.x > width + 20) {
         this.reset(false);
@@ -257,8 +283,6 @@ function initParticleCanvas() {
       ctx.save();
       ctx.globalAlpha = Math.max(0.1, Math.min(0.9, this.alpha));
       ctx.fillStyle = this.color;
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = this.color;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -266,8 +290,9 @@ function initParticleCanvas() {
     }
   }
 
-  const hearts = Array.from({ length: 35 }, () => new FloatingHeart());
-  const particles = Array.from({ length: 45 }, () => new TricolorParticle());
+  // Memory safe count: 18 hearts / 25 particles on mobile, 30 hearts / 40 particles on desktop
+  const hearts = Array.from({ length: isMobile ? 18 : 30 }, () => new FloatingHeart());
+  const particles = Array.from({ length: isMobile ? 25 : 40 }, () => new TricolorParticle());
   const activeFireworks = [];
 
   // ==========================================
@@ -279,14 +304,14 @@ function initParticleCanvas() {
       this.y = y;
       this.color = color;
       const angle = Math.random() * Math.PI * 2;
-      const speed = isRing ? (Math.random() * 2 + 4) : (Math.random() * 6 + 1.5);
+      const speed = isRing ? (Math.random() * 2 + 3.5) : (Math.random() * 5 + 1.2);
       this.vx = Math.cos(angle) * speed;
       this.vy = Math.sin(angle) * speed;
-      this.gravity = 0.08;
+      this.gravity = 0.07;
       this.friction = 0.95;
       this.alpha = 1;
-      this.decay = Math.random() * 0.02 + 0.015;
-      this.radius = Math.random() * 3 + 1.5;
+      this.decay = Math.random() * 0.025 + 0.02;
+      this.radius = Math.random() * 2.5 + 1.2;
     }
 
     update() {
@@ -303,8 +328,6 @@ function initParticleCanvas() {
       ctx.save();
       ctx.globalAlpha = Math.max(0, this.alpha);
       ctx.fillStyle = this.color;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = this.color;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -317,7 +340,7 @@ function initParticleCanvas() {
       this.x = targetX + (Math.random() - 0.5) * 60;
       this.y = height + 20;
       this.targetY = targetY;
-      this.speed = Math.random() * 4 + 10;
+      this.speed = Math.random() * 4 + 9;
       this.color = tricolorColors[Math.floor(Math.random() * tricolorColors.length)];
       this.exploded = false;
       this.sparks = [];
@@ -337,7 +360,7 @@ function initParticleCanvas() {
 
     explode() {
       this.exploded = true;
-      const count = 55;
+      const count = isMobile ? 30 : 45;
       const isRingPattern = Math.random() > 0.5;
 
       for (let i = 0; i < count; i++) {
@@ -345,7 +368,6 @@ function initParticleCanvas() {
         this.sparks.push(new FireworkSpark(this.x, this.y, sparkColor, isRingPattern));
       }
 
-      // Play soft festive burst sound if music is enabled
       playFireworkBurstSound();
     }
 
@@ -353,10 +375,8 @@ function initParticleCanvas() {
       if (!this.exploded) {
         ctx.save();
         ctx.fillStyle = this.color;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       } else {
@@ -365,22 +385,29 @@ function initParticleCanvas() {
     }
   }
 
-  // Trigger multi-stage firecracker burst (3 to 5 seconds)
-  window.triggerFirecrackers = function() {
-    const totalRockets = 8;
+  // Trigger firecracker burst with maximum concurrent rocket safety cap
+  window.triggerFirecrackers = function () {
+    if (activeFireworks.length > 3) return; // Cap max active rockets to 3
+    const totalRockets = isMobile ? 3 : 5;
     for (let i = 0; i < totalRockets; i++) {
       setTimeout(() => {
-        const tx = (width * 0.15) + Math.random() * (width * 0.7);
-        const ty = (height * 0.15) + Math.random() * (height * 0.45);
-        activeFireworks.push(new FireworkRocket(tx, ty));
-      }, i * 450);
+        if (activeFireworks.length <= 4) {
+          const tx = (width * 0.15) + Math.random() * (width * 0.7);
+          const ty = (height * 0.15) + Math.random() * (height * 0.45);
+          activeFireworks.push(new FireworkRocket(tx, ty));
+        }
+      }, i * 400);
     }
   };
 
   function animate() {
+    if (document.hidden) {
+      state.animFrameId = null;
+      return;
+    }
+
     ctx.clearRect(0, 0, width, height);
-    
-    // Draw background particles & hearts
+
     particles.forEach(p => {
       p.update();
       p.draw();
@@ -391,7 +418,6 @@ function initParticleCanvas() {
       h.draw();
     });
 
-    // Draw active fireworks
     for (let i = activeFireworks.length - 1; i >= 0; i--) {
       const fw = activeFireworks[i];
       fw.update();
@@ -401,14 +427,21 @@ function initParticleCanvas() {
       }
     }
 
-    requestAnimationFrame(animate);
+    state.animFrameId = requestAnimationFrame(animate);
   }
 
-  animate();
+  // Resume animation frame when user returns to tab
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !state.animFrameId) {
+      state.animFrameId = requestAnimationFrame(animate);
+    }
+  });
+
+  state.animFrameId = requestAnimationFrame(animate);
 }
 
 // ==========================================
-// Patriotic Instrumental Audio Engine (Audio File + Web Audio Synthesizer Fallback)
+// Patriotic Audio Engine (Memory Safe & Error Shielded)
 // ==========================================
 let bgAudioElement = null;
 
@@ -448,6 +481,7 @@ function getAudioDOMElement() {
     bgAudioElement.loop = true;
     bgAudioElement.volume = 0.5;
     bgAudioElement.setAttribute('playsinline', 'true');
+
     bgAudioElement.setAttribute('webkit-playsinline', 'true');
   }
   return bgAudioElement;
@@ -481,15 +515,20 @@ function startSynthesizedVandeMataram() {
     }
 
     if (state.audioContext.state === 'suspended') {
-      state.audioContext.resume();
+      state.audioContext.resume().catch(() => { });
+    }
+
+    if (state.synthTimerId) {
+      clearTimeout(state.synthTimerId);
+      state.synthTimerId = null;
     }
 
     // Master Volume Gain
     const masterGain = state.audioContext.createGain();
-    masterGain.gain.setValueAtTime(0.18, state.audioContext.currentTime);
+    masterGain.gain.setValueAtTime(0.15, state.audioContext.currentTime);
     masterGain.connect(state.audioContext.destination);
 
-    // Continuous Indian Classical Tanpura / Drone (C4 + G4)
+    // Continuous Tanpura Drone (C4 + G4)
     const droneSa = state.audioContext.createOscillator();
     const dronePa = state.audioContext.createOscillator();
     const droneGain = state.audioContext.createGain();
@@ -499,7 +538,7 @@ function startSynthesizedVandeMataram() {
     dronePa.type = 'triangle';
     dronePa.frequency.setValueAtTime(392.00, state.audioContext.currentTime);
 
-    droneGain.gain.setValueAtTime(0.04, state.audioContext.currentTime);
+    droneGain.gain.setValueAtTime(0.03, state.audioContext.currentTime);
     droneSa.connect(droneGain);
     dronePa.connect(droneGain);
     droneGain.connect(masterGain);
@@ -507,7 +546,7 @@ function startSynthesizedVandeMataram() {
     droneSa.start();
     dronePa.start();
 
-    // Vande Mataram Sequence ("Sujalam Sufalam Malayaja Shitalam...")
+    // Vande Mataram Sequence
     const vandeMataramMelody = [
       { freq: 392.00, duration: 0.45 }, { freq: 440.00, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
       { freq: 523.25, duration: 0.45 }, { freq: 587.33, duration: 0.45 }, { freq: 523.25, duration: 0.90 },
@@ -525,47 +564,49 @@ function startSynthesizedVandeMataram() {
     let noteIndex = 0;
 
     const playNextNote = () => {
-      if (!state.isPlayingAudio || !state.audioContext) {
-        try { droneSa.stop(); dronePa.stop(); } catch(e) {}
+      if (!state.isPlayingAudio || !state.audioContext || document.hidden) {
+        try { droneSa.stop(); dronePa.stop(); } catch (e) { }
         return;
       }
 
       const note = vandeMataramMelody[noteIndex % vandeMataramMelody.length];
 
       if (note.freq > 0) {
-        const osc = state.audioContext.createOscillator();
-        const harmonicOsc = state.audioContext.createOscillator();
-        const noteGain = state.audioContext.createGain();
+        try {
+          const osc = state.audioContext.createOscillator();
+          const harmonicOsc = state.audioContext.createOscillator();
+          const noteGain = state.audioContext.createGain();
 
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(note.freq, state.audioContext.currentTime);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(note.freq, state.audioContext.currentTime);
 
-        harmonicOsc.type = 'triangle';
-        harmonicOsc.frequency.setValueAtTime(note.freq * 2, state.audioContext.currentTime);
+          harmonicOsc.type = 'triangle';
+          harmonicOsc.frequency.setValueAtTime(note.freq * 2, state.audioContext.currentTime);
 
-        const now = state.audioContext.currentTime;
-        const dur = note.duration;
+          const now = state.audioContext.currentTime;
+          const dur = note.duration;
 
-        noteGain.gain.setValueAtTime(0.001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.14, now + 0.08);
-        noteGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          noteGain.gain.setValueAtTime(0.001, now);
+          noteGain.gain.exponentialRampToValueAtTime(0.12, now + 0.08);
+          noteGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
 
-        osc.connect(noteGain);
-        harmonicOsc.connect(noteGain);
-        noteGain.connect(masterGain);
+          osc.connect(noteGain);
+          harmonicOsc.connect(noteGain);
+          noteGain.connect(masterGain);
 
-        osc.start(now);
-        harmonicOsc.start(now);
+          osc.start(now);
+          harmonicOsc.start(now);
 
-        osc.stop(now + dur + 0.05);
-        harmonicOsc.stop(now + dur + 0.05);
+          osc.stop(now + dur + 0.05);
+          harmonicOsc.stop(now + dur + 0.05);
+        } catch (e) { }
       }
 
       noteIndex++;
       if (state.isPlayingAudio) {
-        setTimeout(playNextNote, note.duration * 1000);
+        state.synthTimerId = setTimeout(playNextNote, note.duration * 1000);
       } else {
-        try { droneSa.stop(); dronePa.stop(); } catch(e) {}
+        try { droneSa.stop(); dronePa.stop(); } catch (e) { }
       }
     };
 
@@ -577,42 +618,46 @@ function startSynthesizedVandeMataram() {
 }
 
 function playFireworkBurstSound() {
-  if (!state.isPlayingAudio || !state.audioContext) return;
+  if (!state.isPlayingAudio || !state.audioContext || document.hidden) return;
   try {
     const osc = state.audioContext.createOscillator();
     const gain = state.audioContext.createGain();
     const now = state.audioContext.currentTime;
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(500 + Math.random() * 400, now);
-    osc.frequency.exponentialRampToValueAtTime(120, now + 0.18);
+    osc.frequency.setValueAtTime(450 + Math.random() * 300, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.16);
 
-    gain.gain.setValueAtTime(0.06, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
 
     osc.connect(gain);
     gain.connect(state.audioContext.destination);
 
     osc.start(now);
-    osc.stop(now + 0.2);
-  } catch (e) {}
+    osc.stop(now + 0.18);
+  } catch (e) { }
 }
 
 function stopPatrioticAudio() {
+  if (state.synthTimerId) {
+    clearTimeout(state.synthTimerId);
+    state.synthTimerId = null;
+  }
   if (bgAudioElement) {
     bgAudioElement.pause();
   }
-  if (state.audioContext) {
-    state.audioContext.suspend();
+  if (state.audioContext && state.audioContext.state === 'running') {
+    state.audioContext.suspend().catch(() => { });
   }
 }
 
 // ==========================================
-// Form & Wish Generation Logic (In-Place Slot Morphing with Sender & Receiver Support)
+// Form & Wish Generation Logic
 // ==========================================
 function generateWish(name) {
   if (!rateLimiter.isAllowed()) {
-    showToast('Security Guard: Request throttled to prevent spam. Please wait a moment! 🛡️', '⚠️');
+    showToast('Please wait a brief moment before generating another wish! 🛡️', '⏳');
     return;
   }
 
@@ -633,7 +678,6 @@ function generateWish(name) {
   state.currentName = receiverName;
   state.senderName = senderName;
 
-  // Persist session state in secure cookies
   setSecureCookie("ID2026_RECEIVER", receiverName, 7);
   if (senderName) {
     setSecureCookie("ID2026_SENDER", senderName, 7);
@@ -650,27 +694,23 @@ function generateWish(name) {
     senderNameText.textContent = senderName ? `${senderName} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
   }
 
-  // In-place morphing: hide input section, reveal wish card directly below permanent header (NO SCROLLING)
   if (nameSection) nameSection.classList.add('hidden');
   if (wishSection) {
     wishSection.classList.remove('hidden');
   }
 
-  // Trigger name animation in place
   if (displayRecipient) {
     displayRecipient.classList.remove('anim-name-appear');
-    void displayRecipient.offsetWidth; // Force reflow
+    void displayRecipient.offsetWidth;
     displayRecipient.classList.add('anim-name-appear');
   }
 
-  // Trigger celebration effects (Fireworks + Tricolor Confetti + Audio Pop)
   if (typeof window.triggerFirecrackers === 'function') {
     window.triggerFirecrackers();
   }
   triggerTricolorConfetti();
   playFireworkBurstSound();
 
-  // Update URL search parameters for direct sharing capability
   let newUrl = `${window.location.pathname}?name=${encodeURIComponent(receiverName)}`;
   if (senderName) {
     newUrl += `&sender=${encodeURIComponent(senderName)}`;
@@ -678,43 +718,30 @@ function generateWish(name) {
   window.history.replaceState({}, '', newUrl);
 }
 
+// Memory-throttled Confetti
 function triggerTricolorConfetti() {
-  const count = 200;
-  const defaults = {
-    origin: { y: 0.7 }
-  };
+  const now = Date.now();
+  if (now - state.lastConfettiTime < 800) return; // Throttle confetti to max once per 800ms
+  state.lastConfettiTime = now;
+
+  const count = window.innerWidth < 768 ? 100 : 160;
+  const defaults = { origin: { y: 0.7 } };
 
   function fire(particleRatio, opts) {
-    confetti({
-      ...defaults,
-      ...opts,
-      particleCount: Math.floor(count * particleRatio),
-      colors: ['#FF9933', '#FFFFFF', '#138808', '#000080', '#F59E0B']
-    });
+    try {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        colors: ['#FF9933', '#FFFFFF', '#138808', '#000080', '#F59E0B']
+      });
+    } catch (e) { }
   }
 
-  fire(0.25, {
-    spread: 26,
-    startVelocity: 55,
-  });
-  fire(0.2, {
-    spread: 60,
-  });
-  fire(0.35, {
-    spread: 100,
-    decay: 0.91,
-    scalar: 0.8
-  });
-  fire(0.1, {
-    spread: 120,
-    startVelocity: 25,
-    decay: 0.92,
-    scalar: 1.2
-  });
-  fire(0.1, {
-    spread: 120,
-    startVelocity: 45,
-  });
+  fire(0.25, { spread: 26, startVelocity: 45 });
+  fire(0.2, { spread: 55 });
+  fire(0.35, { spread: 90, decay: 0.91, scalar: 0.8 });
+  fire(0.1, { spread: 110, startVelocity: 25, decay: 0.92, scalar: 1.1 });
 }
 
 // ==========================================
@@ -776,22 +803,37 @@ async function shareNativeWish() {
 
 function copyWishText() {
   const text = getWishText();
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Wish message copied to clipboard! 📋', '✅');
-  }).catch(() => {
-    showToast('Failed to copy text. Please try manual copy.', '❌');
-  });
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Wish message copied to clipboard! 📋', '✅');
+    }).catch(() => {
+      showToast('Failed to copy text. Please try manual copy.', '❌');
+    });
+  } else {
+    showToast('Clipboard copy unavailable on this browser.', '⚠️');
+  }
 }
 
+// Memory & Concurrency Protected Image Export Engine
 async function downloadWishImage() {
+  if (state.isExportingImage) {
+    showToast('Card image export already in progress...', '⏳');
+    return;
+  }
+  state.isExportingImage = true;
+
   const cardElement = document.getElementById('exportWishCard');
-  if (!cardElement) return;
+  if (!cardElement) {
+    state.isExportingImage = false;
+    return;
+  }
 
   showToast('Rendering your card image... 🎨', '⏳');
 
   try {
+    const exportScale = window.innerWidth < 768 ? 1.2 : 1.8;
     const canvas = await html2canvas(cardElement, {
-      scale: 2.5,
+      scale: exportScale,
       useCORS: true,
       backgroundColor: '#0F172A',
       logging: false,
@@ -829,6 +871,8 @@ async function downloadWishImage() {
   } catch (err) {
     console.error('Image render error:', err);
     showToast('Failed to export image. Please try again.', '⚠️');
+  } finally {
+    state.isExportingImage = false;
   }
 }
 
@@ -845,12 +889,11 @@ function resetForm() {
     nameInput.focus();
   }
 
-  // Reset URL back to clean path
   window.history.replaceState({}, '', window.location.pathname);
 }
 
 // ==========================================
-// Freedom Fighters Quotes Carousel
+// Freedom Fighters Quotes Carousel (Timer Protection)
 // ==========================================
 function initQuotesCarousel() {
   const quoteText = document.getElementById('quoteText');
@@ -862,7 +905,6 @@ function initQuotesCarousel() {
 
   if (!quoteText || !quoteDots) return;
 
-  // Create dot indicators
   quoteDots.innerHTML = '';
   freedomQuotes.forEach((_, idx) => {
     const dot = document.createElement('div');
@@ -879,7 +921,6 @@ function initQuotesCarousel() {
     quoteAuthor.textContent = item.author;
     quoteRole.textContent = item.role;
 
-    // Update dots
     const dots = quoteDots.querySelectorAll('.dot');
     dots.forEach((d, i) => {
       d.classList.toggle('active', i === index);
@@ -901,10 +942,15 @@ function initQuotesCarousel() {
     });
   }
 
-  // Auto-advance quote every 6 seconds
-  setInterval(() => {
-    let nextIndex = (state.currentQuoteIndex + 1) % freedomQuotes.length;
-    renderQuote(nextIndex);
+  if (state.quotesIntervalId) {
+    clearInterval(state.quotesIntervalId);
+  }
+
+  state.quotesIntervalId = setInterval(() => {
+    if (!document.hidden) {
+      let nextIndex = (state.currentQuoteIndex + 1) % freedomQuotes.length;
+      renderQuote(nextIndex);
+    }
   }, 6000);
 }
 
@@ -1208,13 +1254,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioEl.paused) {
           audioEl.play().then(() => {
             updateAudioButtonUI(true);
-          }).catch(() => {});
+          }).catch(() => { });
         } else {
           updateAudioButtonUI(true);
         }
       }
       if (state.audioContext && state.audioContext.state === 'suspended') {
-        state.audioContext.resume().catch(() => {});
+        state.audioContext.resume().catch(() => { });
       }
     }
   };
@@ -1237,9 +1283,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if (state.isPlayingAudio && state.wasAudioPlayingBeforeHidden) {
         if (bgAudioElement) {
-          bgAudioElement.play().catch(() => {});
+          bgAudioElement.play().catch(() => { });
         } else if (state.audioContext && state.audioContext.state === 'suspended') {
-          state.audioContext.resume().catch(() => {});
+          state.audioContext.resume().catch(() => { });
         }
         state.wasAudioPlayingBeforeHidden = false;
       }
