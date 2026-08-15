@@ -655,11 +655,11 @@ function stopPatrioticAudio() {
 // ==========================================
 // Persistent Unique Share ID Engine (/w/:id)
 // ==========================================
-function generateShortShareId(name) {
+function generateShortShareId(name, senderName = "Omprasad Bhaskar Padwalkar") {
   try {
     const rawPayload = JSON.stringify({
       n: name,
-      s: "Omprasad Bhaskar Padwalkar",
+      s: senderName || "Omprasad Bhaskar Padwalkar",
       t: Date.now()
     });
     const encoded = btoa(encodeURIComponent(rawPayload));
@@ -684,7 +684,7 @@ function resolveWishFromShareId(shareId) {
       return {
         shareId: shareId,
         receiverName: sanitizeInput(data.n),
-        senderName: data.s || "Omprasad Bhaskar Padwalkar",
+        senderName: sanitizeInput(data.s || "Omprasad Bhaskar Padwalkar"),
         createdAt: data.t || Date.now()
       };
     }
@@ -724,6 +724,8 @@ function generateWish(name) {
   }
 
   const receiverInput = document.getElementById('userNameInput');
+  const senderInput = document.getElementById('userSenderInput');
+
   const rawReceiver = (name || (receiverInput ? receiverInput.value : '')).trim();
   const receiverName = sanitizeInput(rawReceiver);
 
@@ -732,10 +734,15 @@ function generateWish(name) {
     return;
   }
 
-  const shareId = generateShortShareId(receiverName);
+  // Retrieve sender name if provided (e.g. via "Send Personal Wish" mode)
+  const rawSender = senderInput ? senderInput.value.trim() : '';
+  const cleanSender = rawSender ? sanitizeInput(rawSender) : '';
+  const senderName = cleanSender || 'Omprasad Bhaskar Padwalkar';
+
+  const shareId = generateShortShareId(receiverName, senderName);
   state.currentName = receiverName;
   state.currentShareId = shareId;
-  state.senderName = 'Omprasad Bhaskar Padwalkar';
+  state.senderName = senderName;
 
   setSecureCookie("ID2026_RECEIVER", receiverName, 7);
 
@@ -747,7 +754,7 @@ function generateWish(name) {
 
   if (nameText) nameText.textContent = receiverName;
   if (senderNameText) {
-    senderNameText.textContent = 'Omprasad Bhaskar Padwalkar 🇮🇳';
+    senderNameText.textContent = `${senderName} 🇮🇳`;
   }
 
   if (nameSection) nameSection.classList.add('hidden');
@@ -802,8 +809,13 @@ function triggerTricolorConfetti() {
 // ==========================================
 function getWishText() {
   const name = state.currentName || 'Friend';
-  const shareId = state.currentShareId || generateShortShareId(name);
-  const shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
+  const sender = state.senderName || 'Omprasad Bhaskar Padwalkar';
+  const shareId = state.currentShareId || generateShortShareId(name, sender);
+  
+  let shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
+  if (sender && sender !== 'Omprasad Bhaskar Padwalkar') {
+    shareUrl += `&sender=${encodeURIComponent(sender)}`;
+  }
 
   return `Dear ${name}, ❤️
 
@@ -816,7 +828,7 @@ Let us celebrate the spirit of freedom and work together for a brighter and stro
 Jai Hind! 🇮🇳❤️
 
 With Love & Best Wishes ❤️
-— Omprasad Bhaskar Padwalkar 🇮🇳
+— ${sender} 🇮🇳
 
 Open your personalized 80th Independence Day wish here:
 ${shareUrl}`;
@@ -832,8 +844,13 @@ function shareOnWhatsApp() {
 async function shareNativeWish() {
   const wishText = getWishText();
   const name = state.currentName || 'Friend';
-  const shareId = state.currentShareId || generateShortShareId(name);
-  const shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
+  const sender = state.senderName || 'Omprasad Bhaskar Padwalkar';
+  const shareId = state.currentShareId || generateShortShareId(name, sender);
+  
+  let shareUrl = `${window.location.origin}/w/${shareId}?name=${encodeURIComponent(name)}`;
+  if (sender && sender !== 'Omprasad Bhaskar Padwalkar') {
+    shareUrl += `&sender=${encodeURIComponent(sender)}`;
+  }
 
   const shareData = {
     title: 'Happy Independence Day 2026 🇮🇳',
@@ -916,7 +933,8 @@ async function downloadWishImage() {
 
     const link = document.createElement('a');
     const safeName = (state.currentName || 'Friend').replace(/[^a-z0-9]/gi, '_');
-    link.download = `Independence_Day_Wish_${safeName}_Omprasad.png`;
+    const safeSender = (state.senderName || 'Omprasad').replace(/[^a-z0-9]/gi, '_');
+    link.download = `Independence_Day_Wish_${safeName}_from_${safeSender}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
 
@@ -1148,12 +1166,15 @@ function checkUrlParams() {
         state.currentName = cleanName;
         state.isSharedWishView = true;
 
+        const cleanSender = senderParam ? sanitizeInput(decodeURIComponent(senderParam.trim())) : '';
+        const senderName = cleanSender || 'Omprasad Bhaskar Padwalkar';
+        state.senderName = senderName;
+
         const nameText = document.getElementById('nameText');
         const senderNameText = document.getElementById('senderNameText');
         if (nameText) nameText.textContent = cleanName;
         if (senderNameText) {
-          const cleanSender = senderParam ? sanitizeInput(decodeURIComponent(senderParam.trim())) : '';
-          senderNameText.textContent = cleanSender ? `${cleanSender} 🇮🇳` : 'Omprasad Bhaskar Padwalkar 🇮🇳';
+          senderNameText.textContent = `${senderName} 🇮🇳`;
         }
         return;
       }
@@ -1166,13 +1187,14 @@ function checkUrlParams() {
     const wishData = resolveWishFromShareId(shareId);
     if (wishData && wishData.receiverName) {
       state.currentName = wishData.receiverName;
+      state.senderName = wishData.senderName || 'Omprasad Bhaskar Padwalkar';
       state.currentShareId = wishData.shareId;
       state.isSharedWishView = true;
 
       const nameText = document.getElementById('nameText');
       const senderNameText = document.getElementById('senderNameText');
       if (nameText) nameText.textContent = wishData.receiverName;
-      if (senderNameText) senderNameText.textContent = `${wishData.senderName} 🇮🇳`;
+      if (senderNameText) senderNameText.textContent = `${state.senderName} 🇮🇳`;
       return;
     } else {
       state.isInvalidShareId = true;
@@ -1181,16 +1203,18 @@ function checkUrlParams() {
 }
 
 // ==========================================
-// Systematic Performant Scroll Reveal & Parallax System
+// Systematic Performant Scroll Pop-Up & Reveal Engine
 // ==========================================
 function initScrollReveal() {
-  const revealElements = document.querySelectorAll('.scroll-reveal, .scroll-slide-up, .scroll-slide-down, .scroll-slide-left, .scroll-slide-right, .scroll-rotate-in');
+  const revealElements = document.querySelectorAll(
+    '.scroll-reveal, .scroll-slide-up, .scroll-slide-down, .scroll-slide-left, .scroll-slide-right, .scroll-rotate-in, .scroll-pop, .scroll-stagger-item, .seo-item, .quote-card, .pledge-card, .form-card, .wish-card, .action-bar'
+  );
   if (!revealElements.length) return;
 
   const observerOptions = {
     root: null,
     rootMargin: '0px 0px -30px 0px',
-    threshold: 0.1
+    threshold: 0.08
   };
 
   const observer = new IntersectionObserver((entries, obs) => {
@@ -1202,7 +1226,14 @@ function initScrollReveal() {
     });
   }, observerOptions);
 
-  revealElements.forEach(el => observer.observe(el));
+  revealElements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('revealed');
+    } else {
+      observer.observe(el);
+    }
+  });
 
   // Parallax Scroll Depth Effect for Ambient Background Elements
   let ticking = false;

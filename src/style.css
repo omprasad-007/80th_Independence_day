@@ -1648,3 +1648,102 @@ body {
   line-height: 1.5;
 }
 
+/* ==========================================
+   Dynamic Scroll Reveal & Step Pop-Up Animation System
+   ========================================== */
+
+.scroll-reveal,
+.scroll-pop,
+.scroll-slide-up,
+.scroll-slide-down,
+.scroll-slide-left,
+.scroll-slide-right,
+.scroll-rotate-in,
+.scroll-stagger-item {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+  transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.7s ease;
+  filter: blur(5px);
+}
+
+.scroll-pop,
+.scroll-reveal {
+  transform: translateY(45px) scale(0.9);
+}
+
+.scroll-slide-up {
+  transform: translateY(55px) scale(0.94);
+}
+
+.scroll-slide-down {
+  transform: translateY(-45px) scale(0.94);
+}
+
+.scroll-slide-left {
+  transform: translateX(-55px) scale(0.93);
+}
+
+.scroll-slide-right {
+  transform: translateX(55px) scale(0.93);
+}
+
+.scroll-rotate-in {
+  transform: translateY(45px) scale(0.9) rotate(-3deg);
+}
+
+/* Scrolled Into View Revealed States */
+.scroll-reveal.revealed,
+.scroll-pop.revealed,
+.scroll-slide-up.revealed,
+.scroll-slide-down.revealed,
+.scroll-slide-left.revealed,
+.scroll-slide-right.revealed,
+.scroll-rotate-in.revealed,
+.scroll-stagger-item.revealed {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+  filter: blur(0px);
+}
+
+/* Pop-Up Animation Bounce Keyframe Effect */
+@keyframes popupStepBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.86);
+    filter: blur(6px);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.03);
+    filter: blur(0px);
+  }
+  85% {
+    transform: translateY(2px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.scroll-pop.revealed {
+  animation: popupStepBounce 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Staggered Delay for Multi-item Grids and Lists */
+.scroll-stagger-item:nth-child(1),
+.seo-item:nth-child(1) { transition-delay: 0.08s; }
+
+.scroll-stagger-item:nth-child(2),
+.seo-item:nth-child(2) { transition-delay: 0.18s; }
+
+.scroll-stagger-item:nth-child(3),
+.seo-item:nth-child(3) { transition-delay: 0.28s; }
+
+.scroll-stagger-item:nth-child(4) { transition-delay: 0.38s; }
+.scroll-stagger-item:nth-child(5) { transition-delay: 0.48s; }
+
+
